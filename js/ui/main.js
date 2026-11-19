@@ -7,6 +7,7 @@
     const SAVE = 'koori-sbj-save-v1';
     let E = SBJ.createEngine({ setting: Number(params.get('setting')) || 1, seed: params.get('seed') ? Number(params.get('seed')) : undefined });
     const S = () => E.S;
+    let introP = null;   // 登場カットインと 会話 (終わるまで 精算を 待つ)
     let G = null, phase = 'idle', order = [], wins = [null, null, null], auto = false, lastPay = 0, holding = false;
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -57,6 +58,9 @@
         renderNav(g);
         LCD.render(E, G, 'lever');
         Scene.onLever(E, g);
+        introP = null;
+        if (g.battle && g.battle.phase === 'start' && g.battle.talk) introP = Talk.intro(g.battle, auto);
+        else if (g.battle && g.battle.phase === 'final') Talk.last(g.battle);
         leverEvents(g);
         showFx(g, 0);
         Panel.update(E, G, lastPay);
@@ -136,6 +140,7 @@
     async function onAllStopped() {
         phase = 'settle';
         const g = G, modeBefore = g.modeAtLever;
+        if (introP) { await introP; introP = null; }
         const wait = await reveal(g);
         if (wait) await sleep(wait);
         const res = E.settle(g, order);

@@ -31,6 +31,21 @@
         }
         return [{ r: 10, s: suits[0] }, { r: t - 10, s: suits[1] }];
     }
+    // 登場カットインと 会話 (相手が きまった 開始G)・最終G の ひとこと。色が 期待度
+    function makeTalk(rng, B, win, opp) {
+        const art = SBJ.OPPS[opp].art, T = SBJ.TALK || {}, mine = T[art] || { open: ['…'], last: ['…'] }, me = T.koori || { open: ['…'], last: ['…'] };
+        const col = w => B.talkColors[rng.weighted(w)];
+        return {
+            cut: col(win ? B.cutWin : B.cutLose),
+            lines: [{ who: 'opp', text: rng.pick(mine.open), color: col(win ? B.talkWin : B.talkLose) },
+                { who: 'koori', text: rng.pick(me.open), color: col(win ? B.talkWin : B.talkLose) }],
+        };
+    }
+    function finalTalk(rng, B, win, opp) {
+        const T = SBJ.TALK || {}, who = rng.chance(0.5) ? 'opp' : 'koori';
+        const pool = (who === 'opp' ? T[SBJ.OPPS[opp].art] : T.koori) || { last: ['…'] };
+        return { who, text: rng.pick(pool.last), color: B.talkColors[rng.weighted(win ? B.finalTalkWin : B.finalTalkLose)] };
+    }
     const finalCutin = (rng, B, win, high) => CUTINS[rng.weighted(win ? B.cutinWin : (high ? B.cutinLoseHigh : B.cutinLoseLow))];
 
     // win = 当選 (本前兆) か。high = ボーナス高確 滞在中 (負けの 緑カットイン用)。trigger = 契機の 成立役
@@ -55,7 +70,7 @@
         const dColor = match ? oppColor : (oppColor === 'black' ? 'red' : 'black');
         const dCards = dealerCards(rng, dealer, dColor);
         const base = { kind, opp, dealer, dealerCards: dCards, dealerColor: dColor, colorMatch: match };
-        const steps = [{ ...base, phase: 'start', intro, cards: hand.slice(0, 2), total: Cards.total(hand.slice(0, 2)) }];
+        const steps = [{ ...base, phase: 'start', intro, talk: makeTalk(rng, B, win, opp), cards: hand.slice(0, 2), total: Cards.total(hand.slice(0, 2)) }];
         let lv = rng.weighted(win ? B.hitColorWin : B.hitColorLose);
         for (let i = 0; i < hits; i++) {
             const cs = hand.slice(0, 3 + i);
@@ -63,7 +78,7 @@
             // 驚きアクション: つぎの HIT の 色が 1 段階 UP (つぎが ある とき だけ)
             const surprise = !last && rng.chance(win ? B.surpriseWin : B.surpriseLose);
             const step = { ...base, phase: last ? 'final' : 'hit', cards: cs, card: hand[2 + i], total: Cards.total(cs), color: COLORS[Math.min(3, lv)], surprise, hitNo: i + 1 };
-            if (last) { step.win = win; step.cutin = finalCutin(rng, B, win, high); step.highHint = !win && step.cutin === 'green'; }
+            if (last) { step.win = win; step.cutin = finalCutin(rng, B, win, high); step.highHint = !win && step.cutin === 'green'; step.talk = finalTalk(rng, B, win, opp); }
             steps.push(step);
             if (surprise) lv++;
         }
@@ -75,14 +90,16 @@
         const B = P.battle, C = SBJ.CAST, oppName = SBJ.OPPS[opp].name;
         const n = 1 + rng.weighted(win ? B.otherHitsWin : B.otherHitsLose);
         const steps = [];
+        const talk = makeTalk(rng, B, win, opp);
         if (kind === 'poker') {
             // 注意を 促す セリフ・幸運を 祈る セリフ = 約 50%
             const caution = rng.chance(win ? 0.5 : 0.25);
-            steps.push({ kind, phase: 'start', intro, opp, line: caution ? rng.pick([oppName + '「気をつけな…」', C.main + '「幸運を 祈ってて」']) : oppName + '「さあ 勝負だ」' });
+            steps.push({ kind, phase: 'start', intro, opp, talk, line: caution ? rng.pick([oppName + '「気をつけな…」', C.main + '「幸運を 祈ってて」']) : oppName + '「さあ 勝負だ」' });
             for (let i = 0; i < n; i++) {
                 const st = { kind, opp, phase: i === n - 1 ? 'final' : 'hit', hitNo: i + 1, act: 'RAISE!' };
                 if (st.phase === 'final') {
                     st.win = win; st.cutin = finalCutin(rng, B, win, high); st.highHint = !win && st.cutin === 'green';
+                    st.talk = finalTalk(rng, B, win, opp);
                     st.called = win && rng.chance(B.pokerCalled);   // 相手が コール = 勝利濃厚
                     // 相手の 役: フォーカード = 基本・スリーカード = チャンス・ワンペア = 勝利濃厚
                     st.oppHand = win ? ['フォーカード', 'スリーカード', 'ワンペア'][rng.weighted(B.pokerHandWin)] : ['フォーカード', 'スリーカード'][rng.weighted(B.pokerHandLose)];
@@ -91,7 +108,7 @@
             }
         } else {
             const other = win ? rng.chance(0.5) : rng.chance(0.3);   // 別の セリフ = 約 50%
-            steps.push({ kind, phase: 'start', intro, opp, line: other ? C.main + '「今日の ぼくは 冷えてるよ」' : C.main + '「回すよー」' });
+            steps.push({ kind, phase: 'start', intro, opp, talk, line: other ? C.main + '「今日の ぼくは 冷えてるよ」' : C.main + '「回すよー」' });
             for (let i = 0; i < n; i++) {
                 const st = { kind, opp, phase: i === n - 1 ? 'final' : 'hit', hitNo: i + 1 };
                 // base = ふつう・half = 約 50%・up = 期待度 UP・win = 勝利濃厚 (勝ちの ときだけ)
@@ -100,7 +117,7 @@
                 if (win && opp === 3) pool.push([C.rosa + '「ここが 勝負所よ！」', 'win']);
                 if (win) pool.push([oppName + '「諦めるな…！」', 'win']);
                 st.say = pool[rng.weighted(pool.map(x => x[1] === 'base' ? (win ? 2 : 6) : x[1] === 'up' ? (win ? 3 : 1) : 2))][0];
-                if (st.phase === 'final') { st.win = win; st.cutin = finalCutin(rng, B, win, high); st.highHint = !win && st.cutin === 'green'; st.ball = win ? 'WIN' : 'LOSE'; }
+                if (st.phase === 'final') { st.talk = finalTalk(rng, B, win, opp); st.win = win; st.cutin = finalCutin(rng, B, win, high); st.highHint = !win && st.cutin === 'green'; st.ball = win ? 'WIN' : 'LOSE'; }
                 steps.push(st);
             }
         }

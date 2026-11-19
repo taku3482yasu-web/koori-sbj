@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 250" preserveAspectRatio="xMidYMid slice">
+  <!-- ボーナス: 金色の 光の すじ・コインの 山・7 -->
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#ffe066"/><stop offset=".45" stop-color="#c99a00"/><stop offset="1" stop-color="#3d2a00"/></radialGradient>
+    <linearGradient id="coin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3a0"/><stop offset=".5" stop-color="#ffcc20"/><stop offset="1" stop-color="#a87000"/></linearGradient>
+    <symbol id="c" viewBox="-12 -12 24 24"><ellipse rx="11" ry="11" fill="url(#coin)" stroke="#7a5000" stroke-width="1.2"/><ellipse rx="7" ry="7" fill="none" stroke="#fff6c0" stroke-width="1.2"/><text y="4" font-size="10" font-weight="bold" text-anchor="middle" fill="#7a5000">7</text></symbol>
+  </defs>
+  <rect width="450" height="250" fill="url(#bg)"/>
+  <g fill="#fff6c0" opacity=".22">
+    <path d="M225 110 L0 0 H60 Z"/><path d="M225 110 L120 0 H180 Z"/><path d="M225 110 L250 0 H310 Z"/><path d="M225 110 L380 0 H450 V20 Z"/>
+    <path d="M225 110 L450 120 V170 Z"/><path d="M225 110 L450 250 H390 Z"/><path d="M225 110 L260 250 H200 Z"/><path d="M225 110 L70 250 H10 Z"/><path d="M225 110 L0 150 V100 Z"/>
+  </g>
+  <!-- 大きな 7 (うすく) -->
+  <g transform="translate(225 118) skewX(-12)" opacity=".18"><path d="M-60 -70 H60 V-50 L0 70 H-36 L24 -46 H-60 Z" fill="#fff"/></g>
+  <!-- キラキラ -->
+  <g fill="#fffbe0">
+    <path d="M60 50 l3 9 l9 3 l-9 3 l-3 9 l-3 -9 l-9 -3 l9 -3 z"/><path d="M390 40 l3 9 l9 3 l-9 3 l-3 9 l-3 -9 l-9 -3 l9 -3 z"/>
+    <path d="M330 110 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2 z"/><path d="M110 120 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2 z"/>
+  </g>
+  <!-- コインの 山 -->
+  <g>
+    <use href="#c" x="0" y="196" width="34" height="34"/><use href="#c" x="26" y="200" width="34" height="34"/><use href="#c" x="12" y="178" width="34" height="34"/><use href="#c" x="50" y="206" width="34" height="34"/>
+    <use href="#c" x="366" y="200" width="34" height="34"/><use href="#c" x="392" y="196" width="34" height="34"/><use href="#c" x="410" y="210" width="34" height="34"/><use href="#c" x="380" y="176" width="34" height="34"/>
+    <use href="#c" x="150" y="222" width="28" height="28"/><use href="#c" x="270" y="224" width="28" height="28"/>
+  </g>
+  <g fill="url(#coin)" stroke="#7a5000" stroke-width="1"><ellipse cx="90" cy="40" rx="8" ry="3" transform="rotate(30 90 40)"/><ellipse cx="350" cy="80" rx="8" ry="3" transform="rotate(-20 350 80)"/><ellipse cx="160" cy="70" rx="6" ry="2.5"/><ellipse cx="300" cy="30" rx="6" ry="2.5" transform="rotate(40 300 30)"/></g>
+</svg>

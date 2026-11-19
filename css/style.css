@@ -30,18 +30,20 @@ button, select { font: inherit; }
 .rl.good.on { color: #000; }
 
 /* 液晶 */
-#lcd { position: relative; height: 250px; border-radius: 10px; overflow: hidden; border: 3px solid #111; background: #0b3b2a; transition: background .5s; }
-#lcd.casino { background: radial-gradient(circle at 50% 40%, #1f6b4d, #06251a); }
-#lcd.china { background: radial-gradient(circle at 50% 40%, #9b1b1b, #2b0505); }
-#lcd.japan { background: radial-gradient(circle at 50% 40%, #5b3a9e, #160b2e); }
-#lcd.hawaii { background: radial-gradient(circle at 50% 40%, #ff9a3c, #7a2a00); }
-#lcd.bonus { background: radial-gradient(circle at 50% 40%, #c9a000, #3d2a00); }
-#lcd.rc { background: radial-gradient(circle at 50% 40%, #1565c0, #020c26); }
-#lcd.rc.red { background: radial-gradient(circle at 50% 40%, #c62828, #2b0505); }
-#lcd.st { background: radial-gradient(circle at 50% 40%, #00897b, #00201c); }
-#lcd.sst { background: conic-gradient(from 0deg, #f44, #fd4, #4f8, #4cf, #a4f, #f44); }
-#lcd.sst #main { background: #0009; }
-#lcd.ending { background: radial-gradient(circle at 50% 40%, #fff3, #000), conic-gradient(#f44, #fd4, #4f8, #4cf, #a4f, #f44); }
+#lcd { position: relative; height: 250px; border-radius: 10px; overflow: hidden; border: 3px solid #111; background-color: #0b3b2a; }
+/* ステージの 背景の 絵 (assets/bg/*.svg)。文字が 読めるように 上に うすい 暗い 膜 */
+#lcd { background-size: cover; background-position: center; }
+#lcd.casino { background-image: linear-gradient(#0003, #0007), url(../assets/bg/casino.svg); }
+#lcd.china { background-image: linear-gradient(#0003, #0007), url(../assets/bg/china.svg); }
+#lcd.japan { background-image: linear-gradient(#0003, #0007), url(../assets/bg/japan.svg); }
+#lcd.hawaii { background-image: linear-gradient(#0002, #0006), url(../assets/bg/hawaii.svg); }
+#lcd.bonus { background-image: linear-gradient(#0002, #0006), url(../assets/bg/bonus.svg); }
+#lcd.rc { background-image: linear-gradient(#0003, #0006), url(../assets/bg/rc.svg); }
+#lcd.rc.red { background-image: linear-gradient(#c6282888, #2b0505aa), url(../assets/bg/rc.svg); }
+#lcd.st { background-image: linear-gradient(#0002, #0006), url(../assets/bg/st.svg); }
+#lcd.sst { background-image: linear-gradient(#0002, #0005), url(../assets/bg/sst.svg); }
+#lcd.sst #main { background: #0006; }
+#lcd.ending { background-image: linear-gradient(#0002, #0005), url(../assets/bg/ending.svg); }
 #stage, #sub { position: absolute; top: 6px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #0007; z-index: 2; }
 #stage { left: 8px; } #sub { right: 8px; }
 #main { position: absolute; inset: 0; padding: 28px 10px 26px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; }

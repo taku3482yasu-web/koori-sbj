@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 250" preserveAspectRatio="xMidYMid slice">
+  <!-- エンディング: 夜の 街に 大きな 花火・こおりトロフィー -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05061a"/><stop offset=".8" stop-color="#1a1a4a"/><stop offset="1" stop-color="#3a2a6a"/></linearGradient>
+    <linearGradient id="cup" x1="0" x2="1"><stop offset="0" stop-color="#9adcff"/><stop offset=".5" stop-color="#e8fbff"/><stop offset="1" stop-color="#5ab0e0"/></linearGradient>
+  </defs>
+  <rect width="450" height="250" fill="url(#sky)"/>
+  <!-- 花火 -->
+  <g transform="translate(110 70)" stroke-linecap="round" stroke-width="2.5">
+    <g stroke="#ff5a7a"><line x1="0" y1="-14" x2="0" y2="-44"/><line x1="0" y1="14" x2="0" y2="44"/><line x1="-14" y1="0" x2="-44" y2="0"/><line x1="14" y1="0" x2="44" y2="0"/></g>
+    <g stroke="#ffd54a"><line x1="10" y1="10" x2="32" y2="32"/><line x1="-10" y1="10" x2="-32" y2="32"/><line x1="10" y1="-10" x2="32" y2="-32"/><line x1="-10" y1="-10" x2="-32" y2="-32"/></g>
+  </g>
+  <g transform="translate(340 60)" stroke-linecap="round" stroke-width="2.5">
+    <g stroke="#5affc0"><line x1="0" y1="-12" x2="0" y2="-40"/><line x1="0" y1="12" x2="0" y2="40"/><line x1="-12" y1="0" x2="-40" y2="0"/><line x1="12" y1="0" x2="40" y2="0"/></g>
+    <g stroke="#7ad8ff"><line x1="9" y1="9" x2="28" y2="28"/><line x1="-9" y1="9" x2="-28" y2="28"/><line x1="9" y1="-9" x2="28" y2="-28"/><line x1="-9" y1="-9" x2="-28" y2="-28"/></g>
+  </g>
+  <g transform="translate(230 40)" fill="#ffd54a"><circle cx="0" cy="-26" r="3"/><circle cx="18" cy="-18" r="3"/><circle cx="26" cy="0" r="3"/><circle cx="18" cy="18" r="3"/><circle cx="0" cy="26" r="3"/><circle cx="-18" cy="18" r="3"/><circle cx="-26" cy="0" r="3"/><circle cx="-18" cy="-18" r="3"/></g>
+  <!-- 街 -->
+  <g fill="#0a0a24">
+    <rect x="0" y="180" width="40" height="70"/><rect x="40" y="160" width="30" height="90"/><rect x="70" y="190" width="40" height="60"/><rect x="110" y="170" width="26" height="80"/>
+    <rect x="314" y="172" width="26" height="78"/><rect x="340" y="190" width="40" height="60"/><rect x="380" y="158" width="30" height="92"/><rect x="410" y="182" width="40" height="68"/>
+  </g>
+  <g fill="#ffcf5a" opacity=".6"><rect x="46" y="170" width="5" height="5"/><rect x="58" y="184" width="5" height="5"/><rect x="116" y="180" width="5" height="5"/><rect x="386" y="168" width="5" height="5"/><rect x="398" y="186" width="5" height="5"/><rect x="320" y="184" width="5" height="5"/><rect x="10" y="192" width="5" height="5"/><rect x="420" y="196" width="5" height="5"/></g>
+  <!-- こおりトロフィー -->
+  <g transform="translate(225 196)" opacity=".85">
+    <path d="M-30 -60 H30 V-40 Q30 -14 0 -8 Q-30 -14 -30 -40 Z" fill="url(#cup)" stroke="#e8fbff" stroke-width="1.5"/>
+    <path d="M-30 -52 Q-46 -50 -42 -36 Q-38 -26 -26 -28" fill="none" stroke="#bff0ff" stroke-width="4"/>
+    <path d="M30 -52 Q46 -50 42 -36 Q38 -26 26 -28" fill="none" stroke="#bff0ff" stroke-width="4"/>
+    <rect x="-6" y="-8" width="12" height="20" fill="#9adcff"/>
+    <rect x="-24" y="12" width="48" height="14" rx="2" fill="#5ab0e0" stroke="#e8fbff" stroke-width="1"/>
+    <g stroke="#fff" stroke-width="1.5" stroke-linecap="round"><g transform="translate(0 -38)"><line y1="-8" y2="8"/><line x1="-7" y1="-4" x2="7" y2="4"/><line x1="-7" y1="4" x2="7" y2="-4"/></g></g>
+  </g>
+</svg>

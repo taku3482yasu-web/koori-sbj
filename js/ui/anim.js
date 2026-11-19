@@ -40,7 +40,7 @@ const Anim = (() => {
         },
         [C.main + 'の 部位演出']: t => put(`<div class="zoomwrap ${t.includes('足') ? 'foot' : 'face'}">${sprite('koori', 360)}</div>`, 'zoom', 1500),
         'ひとくち演出': () => { put(sprite('koori', 80), 'bite', 1300); put('<div class="fx-word">ぱくっ!</div>', 'pop', 1200); },
-        '衣装替え・カーテン': () => put('<i class="cur l"></i><i class="cur r"></i>', 'curtain', 1600),
+        '衣装替え・カーテン': () => put('<i class="ctn l"></i><i class="ctn r"></i>', 'curtain', 1600),
         'カジノ内観 (シャンデリア)': t => put('<div class="chand"></div>', 'glow' + (strong(t) ? ' strong' : ''), 1400),
         'カジノ外観 (塔・噴水)': t => put('<div class="tower"></div><div class="fountain"></div>', 'glow outside' + (strong(t) ? ' strong' : ''), 1400),
         'レーザー文字': t => put(`<i class="beam a"></i><i class="beam b"></i><div class="laser-word">${t}</div>`, 'laser', 1600),

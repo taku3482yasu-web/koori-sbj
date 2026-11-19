@@ -10,4 +10,5 @@
 - エンジン (`js/engine/`) は DOM に ふれない。抽選は ぜんぶ lever() で 終わらせ、状態遷移は g.post に 積んで settle() で 実行。乱数は `createRng(seed)` 1 か所。数値は `js/data/params.js`、演出の 一覧は `js/data/effects.js` (コードに 直書きしない)。
 - テスト: `node tools/test.js` (停止形 30 万G・停止不能 0・左 3 パターン・スイカ目押し・バトルの 法則・こおりチャンス・無限ループ・機械割 設定1 97〜101% / 設定6 110〜114%・フリーズ / エンディング)。`--quick` で 短く。機械割は `node tools/sim.js 4000000 1-6`。
 - 画面の 確認: `index.html?rc=1` (こおりチャンス)・`?bonus=2`・`?st=1`・`?sst=1`・`?prep=3`・`?rchigh=1`・`?battle=bj|poker|roulette`・`?credit=5000`・`?setting=6`・`?seed=3`。
+- ステージの 背景の 絵は `assets/bg/<casino|china|japan|hawaii|bonus|rc|st|sst|ending>.svg` (Claude が 描いた。css/style.css で 上に うすい 暗い 膜)。同じ 名前の 絵に 置きかえれば 差し替わる。
 - 差し替え素材は `assets/` に 置いて `assets/assets.js` に 名前を 書く (書いて いない ものは 読まない)。

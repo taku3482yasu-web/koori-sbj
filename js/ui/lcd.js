@@ -68,6 +68,7 @@ const LCD = (() => {
         const cls = stageClass(S);
         const simpleRed = (S.mode === 'rcPromo' || S.mode === 'rcJudge') && S.custom.simple && S.rc && (S.rc.rank >= 1 || E.promoPreview() >= 1);
         lcd.className = cls + (simpleRed ? ' red' : '');
+        if (typeof Scene !== 'undefined') Scene.sync(E, G, cls, when);
         $('stage').textContent = ({ bonus: 'BONUS', rc: 'こおりチャンス', st: 'ストックタイム', sst: 'スーパーストックタイム', ending: 'ENDING' })[cls] || STAGE_NAME[cls];
         $('lampJoker').className = 'lamp' + (S.joker > 0 ? ' on' : '');
         $('lampGold').className = 'lamp' + (S.goldBar ? ' goldon' : '');
@@ -81,15 +82,15 @@ const LCD = (() => {
                 case 'normal': case 'rchigh': {
                     // 前兆が 続く 間は 精算後も バトル画面を 出した まま
                     if (G && G.battle && S.omen) { html = battleHTML(E, G.battle, true); break; }
-                    html = `${koori(64)}<div class="small">${S.mode === 'rchigh' ? 'こおりチャンスを 狙え!' : pick(IDLE)}</div>`;
-                    if (S.mode === 'rchigh') sub = 'RC 高確率';
+                    // こおりくんは 舞台 (scene.js) で 歩いて いる。内部状態 (RC 高確率 など) は 画面に 出さない
+                    html = '';
                     break;
                 }
                 case 'ending':
                     html = `<div class="big">ENDING BONUS</div><div class="mid">有利区間 完走まで</div><div class="mid">${E.yuriDiff()} / ${E.P.yuriCap} 枚</div>`;
                     break;
                 case 'prep':
-                    html = `<div class="big">BONUS 確定!!</div>${koori(48)}<div class="small">PUSH で 種類を 示唆・狙え役を 待て…</div>`;
+                    html = `<div class="big">BONUS 確定!!</div><div class="small">PUSH で 種類を 示唆・狙え役を 待て…</div>`;
                     break;
                 case 'bonus': {
                     const b = S.bonus;
@@ -114,7 +115,7 @@ const LCD = (() => {
                 }
                 case 'st': {
                     const st = S.st;
-                    html = `<div class="big">${st.super ? 'スーパー' : ''}ストックタイム</div><div class="mid">${st.g} / ${st.len}G${st.sets > 1 ? '　SET ' + st.sets : ''}</div><div class="mid">ストック ×${Math.max(S.stocks, 0)}</div><div class="small">終了時に ストックを 放出! (最低 1 個 保証)</div>`;
+                    html = `<div class="big">${st.super ? 'スーパー' : ''}ストックタイム</div><div class="mid">${st.g} / ${st.len}G${st.sets > 1 ? '　SET ' + st.sets : ''}</div><div class="small">ストックは こおりくんの アクションで 示唆・終了時に 放出!</div>`;
                     break;
                 }
             }

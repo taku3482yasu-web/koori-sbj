@@ -56,6 +56,7 @@
         if (S().custom.sakibare && (g.aim != null || g.award != null) && g.modeAtLever === 'rcJudge') Sound.se.saki();
         renderNav(g);
         LCD.render(E, G, 'lever');
+        Scene.onLever(E, g);
         leverEvents(g);
         showFx(g, 0);
         Panel.update(E, G, lastPay);
@@ -125,7 +126,10 @@
         const n = order.indexOf(i) + 1;
         if (G && G.hints && G.hints.reelOff && n <= G.hints.reelOff) ReelsView.off(i);
         if (G) showFx(G, ReelsView.stoppedCount());
-        if (ReelsView.allStopped()) onAllStopped();
+        if (ReelsView.allStopped()) {
+            if (G) Scene.onStop3(E, G, SBJ.Lottery.isRare(G.flag) && !G.missed && G.aim == null);
+            onAllStopped();
+        }
     });
 
     // ================= 第3停止後 → 精算 =================
@@ -139,7 +143,7 @@
         lastPay = res.pay;
         if (g.aim === 6) ReelsView.goldMiddle();
         ReelsView.mark(E.highlight(g, wins));
-        if (res.pay > 0) Sound.se.pay(res.pay);
+        if (res.pay > 0) { Sound.se.pay(res.pay); Scene.onPay(E); }
         await afterEvents(res, modeBefore);
         refresh('idle');
         phase = 'idle';
@@ -182,7 +186,6 @@
         const msgs = [];
         for (const ev of res.events) {
             if (ev.t === 'flash') msgs.push([ev.text, '#ff5']);
-            if (ev.t === 'miss') msgs.push([ev.text, '#aaa']);
             if (ev.t === 'bonusEnd') {
                 msgs.push([`${SBJ.BONUS_NAMES[ev.bonus.type]} 終了　${ev.bonus.paid} 枚`, '#fff']);
                 if (ev.bonus.endChar) { msgs.push(['サブ液晶: ' + ev.bonus.endChar, '#cdf']); setTimeout(() => Anim.endChar(ev.bonus.endChar), 1000); }
@@ -191,11 +194,11 @@
         }
         const m = S().mode;
         if (m !== modeBefore || (modeBefore === 'bonus' && res.events.some(e => e.t === 'bonusEnd'))) {
-            if (m === 'prep') { msgs.push(['ボーナス 確定!!', '#ff4']); Sound.se.big(); }
+            if (m === 'prep') { Sound.se.big(); await Scene.win('bonus'); msgs.push(['ボーナス 確定!!', '#ff4']); }
             else if (m === 'bonus') { msgs.push([SBJ.BONUS_NAMES[S().bonus.type] + ' スタート!', '#ff4']); Sound.se.big(); }
-            else if (m === 'rcPromo') { msgs.push(['こおりチャンス 突入!!', '#6cf']); Sound.se.big(); }
+            else if (m === 'rcPromo') { Sound.se.big(); if (modeBefore === 'normal' || modeBefore === 'rchigh') await Scene.win('blue'); msgs.push(['こおりチャンス 突入!!', '#6cf']); }
             else if (m === 'rcJudge' && modeBefore !== 'rcJudge') judgeMsgs(msgs);
-            else if (m === 'st') { msgs.push([(S().st.super ? 'スーパー' : '') + 'ストックタイム 突入!!' + (S().st.why ? ' (' + S().st.why + ')' : ''), '#ff4']); Sound.se.big(); }
+            else if (m === 'st') { if (modeBefore !== 'st') await Scene.win('rainbow'); msgs.push([(S().st.super ? 'スーパー' : '') + 'ストックタイム 突入!!' + (S().st.why ? ' (' + S().st.why + ')' : ''), '#ff4']); Sound.se.big(); }
             else if (m === 'rchigh' && modeBefore !== 'rchigh') msgs.push(['こおりチャンス 高確率へ', '#6cf']);
             else if (m === 'normal' && modeBefore === 'rchigh') msgs.push(['通常ステージへ…', '#aaa']);
         }
@@ -300,5 +303,6 @@
         S().pending = { kind: 'bonus' }; S().omen = { pre: 0, battle: b, win: true };
     }
     window.__game = { get E() { return E; } };
+    Scene.init();
     refresh('idle');
 })();

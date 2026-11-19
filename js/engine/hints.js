@@ -23,6 +23,10 @@
                 if (part === 'nc' && g.flag === 'CHANCE') return false;
                 if (part === 'stageUp1' && !((g.flag === 'CBELL' || g.flag === 'CHE') && (S.china || S.bonusHigh || ctx.real))) return false;
                 if (part === 'stageUp2' && !(g.flag === 'CHANCE' && (S.bonusHigh || ctx.real))) return false;
+                if (part === 'replay' && g.flag !== 'REP' && g.flag !== 'BELREP') return false;
+                if (part.startsWith('f:') && !part.slice(2).split('|').includes(g.flag)) return false;
+                // 本前兆期待度 N%: 本前兆なら 出す。ガセ (前兆なし) は 期待度に 合わせて 間引く
+                if (part.startsWith('exp:') && !ctx.real) { const n = Number(part.slice(4)); if (!rng.chance(SBJ.FX_EXP_K * (100 - n) / n)) return false; }
             }
             return true;
         }
@@ -39,18 +43,20 @@
                 const f = rng.pick(list);
                 const ok = f.v.filter(v => (!v.normalOnly || S.mode === 'normal') && allowed(v.c, g, ctx));
                 if (!ok.length) continue;
-                const ws = ok.map(v => v.c === 'none' ? W.none : v.c.includes('hint') && ctx.high ? W.hintHigh : v.c.includes('omen') && ctx.real ? W.omenReal : W.other);
+                const ws = ok.map(v => v.c === 'none' ? W.none : v.c.includes('hint') && ctx.high ? W.hintHigh : (v.c.includes('omen') || v.c.includes('exp:')) && ctx.real ? W.omenReal : W.other);
                 const v = ok[rng.weighted(ws)];
+                const out = { name: f.name, kind: f.kind || null, text: v.t, at: v.at || 0, lamp: v.lamp || null, col: v.col || null, art: v.art || null, su: v.su || null };
+                if (f.kind === 'talk') out.lines = rng.pick(SBJ.NOTICE_TALK);
                 if (v.c === 'stageUp1') S.china = true;
                 if (v.c === 'stageUp2' && S.bonusHigh) S.showHigh = true;
-                return { name: f.name, text: v.t, at: v.at || 0, lamp: v.lamp || null };
+                return out;
             }
             return null;
         }
         // その他の 演出 (始動音の 遅れ・ブラックアウト・リール消灯・ゲーム数の 色・PUSH サイドランプ)
         function makeHints(g) {
             const h = {}, ctx = context(g), real = ctx.real, high = ctx.high;
-            if (high && rng.chance(H.delay)) h.delay = true;
+            if (high && (g.flag === 'CHE' || real) && rng.chance(H.delay)) h.delay = true;   // 遅れ = 高確濃厚・チェリー否定なら 本前兆濃厚
             const bo = real ? H.blackout.real : high ? H.blackout.high : H.blackout.other;
             if (rng.chance(bo) && (real || g.flag !== 'REP')) h.blackout = true;      // リプレイで ブラックアウト = 本前兆濃厚
             const ro = real ? H.reelOff.real : high ? H.reelOff.high : H.reelOff.other;

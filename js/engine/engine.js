@@ -111,7 +111,7 @@
                 g.post.push(resolveWin);
             } else {
                 const pre = rng.chance(P.omenLong.real) ? P.omenLong.pre : rng.int(P.omenPre[0], P.omenPre[1]);
-                S.omen = { pre, battle: Battle.makeBattle(rng, P, true, S.bonusHigh, g.flag), win: true };
+                S.omen = { pre, battle: Battle.makeBattle(rng, P, true, S.bonusHigh, g.flag), win: true, hawaii: rng.chance(P.hawaiiRate) };   // ハワイ移行 = 本前兆濃厚 (本前兆の 一部だけ)
                 g.events.push({ t: 'omen', text: '…ん？' });
             }
         }
@@ -119,6 +119,7 @@
             const o = S.omen;
             if (o.pre > 0) { o.pre--; g.events.push({ t: 'omen', text: rng.pick(SBJ.OMEN_TEXT) }); return; }
             const b = o.battle;
+            if (!o.win && b.i === 0 && (g.flag === 'REP' || g.flag === 'BELREP')) return;   // リプレイ成立 + バトル発展 = 本前兆濃厚
             g.battle = b.steps[b.i++];
             if (b.i >= b.steps.length) {
                 if (o.win && fx && S.pending && S.pending.kind === 'bonus') g.oddity = fx.oddity();   // 告知ゲームの 違和感 (設定示唆)
@@ -144,7 +145,7 @@
             }
         }
         function stageOf() {
-            if (S.omen || S.pending) return 'hawaii';
+            if (S.omen && S.omen.win && S.omen.hawaii) return 'hawaii';
             if (S.mode === 'rchigh') return 'japan';
             if (S.bonusHigh && S.showHigh) return 'japan';
             if (S.china || S.bonusHigh || S.chain >= 3) return 'china';

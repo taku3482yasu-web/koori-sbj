@@ -123,3 +123,31 @@
 .tc-white { color: #fff; } .tc-blue { color: #5cc0ff; } .tc-green { color: #5cff8a; } .tc-red { color: #ff4a4a; }
 .tc-gold { color: #ffd54a; text-shadow: 0 0 10px #ffb000, 0 2px 0 #000 !important; }
 .tc-rainbow { background: linear-gradient(90deg, #f44, #fd4, #4f8, #4cf, #a4f, #f44); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent !important; animation: rb 1s linear infinite; text-shadow: none !important; filter: drop-shadow(0 2px 0 #000); }
+
+#talk.over .tline.low { top: auto; bottom: 42%; }
+.tcut.small .tband { top: 36%; height: 30%; }
+.tcut.small .tface { top: 22%; }
+.tcut.small .tname { top: 42%; }
+
+/* ---------- 通常時の 予告 (js/ui/anim.js の BY_KIND) ---------- */
+.fx.stepup { flex-direction: column; gap: 6px; }
+.sustack { display: flex; gap: 6px; }
+.sustack .su { display: flex; width: 34px; height: 48px; align-items: center; justify-content: center; border-radius: 6px; background: #fff; color: #111; font-style: normal; font-size: 22px; font-weight: 900; box-shadow: 0 3px 0 #0008; opacity: 0; animation: suIn .3s ease-out forwards; }
+.sustack .su3, .sustack .su4 { color: #d11; }
+.sustack .su4 { box-shadow: 0 0 14px #ff4a4a; }
+.sustack .su5 { background: linear-gradient(135deg, #ff0, #f0f, #0ff); box-shadow: 0 0 18px #fff; }
+.su-label { font-weight: 900; font-size: 18px; color: #ffd54a; text-shadow: 0 2px 0 #000; opacity: 0; animation: suIn .3s ease-out forwards; }
+@keyframes suIn { from { opacity: 0; transform: translateY(-20px) scale(1.4); } to { opacity: 1; transform: none; } }
+.slash-card { position: relative; width: 72px; height: 100px; border-radius: 8px; background: repeating-linear-gradient(45deg, #234 0 6px, #345 6px 12px); border: 3px solid #9ab; display: flex; align-items: center; justify-content: center; animation: flipIn 1.7s ease-out both; }
+.slash-card b { font-size: 46px; font-weight: 900; color: #111; opacity: 0; animation: reveal 1.7s ease-out both; }
+.slash-card b.red { color: #d11; }
+.slash-line { position: absolute; left: -30%; top: 50%; width: 160%; height: 4px; background: #fff; box-shadow: 0 0 12px #fff; transform: rotate(-35deg) scaleX(0); animation: slash 1.7s ease-out both; }
+@keyframes slash { 0%, 25% { transform: rotate(-35deg) scaleX(0); opacity: 1; } 40% { transform: rotate(-35deg) scaleX(1); opacity: 1; } 55%, 100% { opacity: 0; transform: rotate(-35deg) scaleX(1); } }
+@keyframes flipIn { 0%, 42% { background: repeating-linear-gradient(45deg, #234 0 6px, #345 6px 12px); } 50%, 100% { background: #fff; } }
+@keyframes reveal { 0%, 45% { opacity: 0; transform: scale(.5); } 60%, 100% { opacity: 1; transform: none; } }
+.logo-rush { position: relative; width: 100%; height: 100%; }
+.logo-rush b { position: absolute; left: 0; right: 0; top: 34%; text-align: center; font-size: 20px; font-weight: 900; line-height: 1.2; background: linear-gradient(90deg, #7fd8ff, #fff, #ffd54a); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 3px 0 #000); opacity: 0; animation: logoHit .4s ease-out both; }
+@keyframes logoHit { 0% { opacity: 0; transform: scale(2.2); } 40% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.9); } }
+.gen-card { background: #000c; border: 2px solid #ffd54a; border-radius: 10px; padding: 6px 14px; text-align: center; box-shadow: 0 0 16px #0008; }
+.gen-card small { display: block; font-size: 10px; color: #ffd54a; }
+.gen-card b { font-size: 20px; font-weight: 900; color: #fff; }

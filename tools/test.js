@@ -70,7 +70,7 @@ for (const aim of [true, false]) {
         const b = Battle.makeBattle(rng, P, win, high, rng.pick([null, 'CHE', 'SUI']));
         const fin0 = b.steps[b.steps.length - 1];
         if (!win && fin0.cutin === 'green' && !high) greenLow++;
-        if (!win && b.opp === 5) penLose++;
+        if (!win && b.opp >= 5) penLose++;
         // 登場カットイン・会話・最終G の ひとこと: 虹 (勝利濃厚) は 負けに 出ない・どの バトルにも 付く
         const st0 = b.steps[0], finT = b.steps[b.steps.length - 1].talk;
         if (!st0.talk || !finT) noTalk++;
@@ -92,7 +92,7 @@ for (const aim of [true, false]) {
     check('BJ バトル: 相手 15 は 負けに 出ない', bad15 === 0, bad15);
     check('BJ バトル: HIT 4 回は 負けに 出ない', bad4 === 0, bad4);
     check('カジノバトル: 緑カットインの 負けは 低確で 出ない', greenLow === 0, greenLow);
-    check('カジノバトル: ペンちゃんは 負けに 出ない', penLose === 0, penLose);
+    check('カジノバトル: ペンちゃん・かきごおりちゃんは 負けに 出ない', penLose === 0, penLose);
     check('カジノバトル: 会話と カットインが どの バトルにも 付く', noTalk === 0, noTalk);
     check('カジノバトル: 虹色の 会話・カットインは 負けに 出ない', rbLose === 0, rbLose);
     check('BJ バトル: カードの 並びが 7 章の 条件どおり', seq === 0, `${seq}/${n}`);

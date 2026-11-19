@@ -63,7 +63,26 @@ const Anim = (() => {
         '電光掲示板': t => put(`<div class="board"><span>${t}</span></div>`, 'pop board-in', 1600),
     };
     // 状態示唆演出 (fx = { name, text, at })
-    function play(fx) { const f = BY_NAME[fx.name]; if (f) f(fx.text); }
+    // 予告の 種類ごと (会話・カットイン・ステップアップ・カード斬り・ロゴ連打)。一覧に ない ものは 札を 出す
+    const BY_KIND = {
+        talk: fx => Talk.notice(fx),
+        cutin: fx => Talk.cut(fx),
+        stepup: fx => {
+            const cards = Array.from({ length: fx.su }, (_, i) => `<i class="su su${i + 1}" style="animation-delay:${i * 0.28}s">${['♠', '♣', '♥', '♦', '★'][i]}</i>`).join('');
+            put(`<div class="sustack">${cards}</div><div class="su-label" style="animation-delay:${fx.su * 0.28}s">STEP ${fx.su}</div>`, 'stepup', 900 + fx.su * 300);
+        },
+        slash: fx => {
+            const red = /K|JOKER/.test(fx.text);
+            put(`<div class="slash-card"><b class="${red ? 'red' : ''}">${fx.text === 'JOKER' ? '🃏' : fx.text}</b><i class="slash-line"></i></div>`, 'slash', 1700);
+        },
+        logo: () => put(`<div class="logo-rush">${Array.from({ length: 5 }, (_, i) => `<b style="animation-delay:${i * 0.22}s">こおりくんの<br>スーパーブラックジャック</b>`).join('')}</div>`, 'logo', 1800),
+    };
+    function generic(fx) { put(`<div class="gen-card"><small>${fx.name}</small><b>${fx.text}</b></div>`, 'pop gen', 1400); }
+    function play(fx) {
+        if (fx.kind && BY_KIND[fx.kind]) return BY_KIND[fx.kind](fx);
+        const f = BY_NAME[fx.name];
+        if (f) f(fx.text); else generic(fx);
+    }
     // ST の ストック数示唆 (ピース・ウインク・投げキッス)
     function pose(text) { put(`${sprite('koori', 72)}<div class="bubble">${text.replace(C.main + 'の ', '')}</div>`, 'talk', 1600); }
     // ボーナス終了の サブ液晶キャラ (設定示唆)

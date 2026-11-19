@@ -57,6 +57,11 @@
         const to = B.triggerOpp[trigger];
         if (to != null && rng.chance(win ? B.triggerWin : B.triggerLose)) opp = to;
         const intro = rng.pick(B.intros);
+        // 発展契機の 法則: 一人称 → ゆきだるマン以上・部位 → つららちゃん以上・ビッグクイーン → しろくま支配人なら 大チャンス・ルーレット → つららちゃんなら 大チャンス
+        if (intro === '一人称' && opp < 2) opp = win ? 2 + rng.int(0, 2) : 2;
+        if (intro === '部位' && opp < 3) opp = 3;
+        if (intro === 'ビッグクイーン' && win && rng.chance(0.35)) opp = 4;
+        if (intro === 'ルーレット' && win && rng.chance(0.35)) opp = 3;
         if (kind !== 'bj') return makeOther(rng, P, kind, win, high, opp, intro);
 
         let dealer, hits, hand;

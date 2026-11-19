@@ -28,7 +28,7 @@ const LCD = (() => {
         if (S.mode === 'bonus' || S.mode === 'prep') return 'bonus';
         if (S.mode === 'rcPromo' || S.mode === 'rcJudge') return 'rc';
         if (S.mode === 'st') return S.st && S.st.super ? 'sst' : 'st';
-        if (S.omen || S.pending) return 'hawaii';
+        if (S.omen && S.omen.win && S.omen.hawaii) return 'hawaii';
         if (S.mode === 'rchigh') return 'japan';
         if (S.bonusHigh && S.showHigh) return 'japan';
         if (S.china || S.bonusHigh || S.chain >= 3) return 'china';

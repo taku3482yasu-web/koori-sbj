@@ -41,5 +41,27 @@ const Talk = (() => {
         clearTimeout(last.t);
         last.t = setTimeout(() => { t.className = ''; t.innerHTML = ''; }, 1500);
     }
-    return { intro, last };
+    // 通常時の 会話予告 (ふたりの かけあい・文字の 色が 期待度)
+    async function notice(fx) {
+        const t = box(), lines = fx.lines || [];
+        for (let i = 0; i < lines.length; i++) {
+            const [art, text] = lines[i];
+            const name = art === 'koori' ? SBJ.CAST.main : (SBJ.OPPS.find(o => o.art === art) || {}).name || (art === 'ilel' ? SBJ.CAST.ilel : '');
+            t.className = 'show over';
+            t.innerHTML = `<div class="tline ${i % 2 ? 'right' : 'left'} low">${face(art, 44)}<div class="tbub"><small>${name}</small><span class="tc-${fx.col}">${text}</span></div></div>`;
+            if (typeof Sound !== 'undefined') Sound.se.tick();
+            await sleep(1000);
+        }
+        t.className = ''; t.innerHTML = '';
+    }
+    // 通常時の カットイン予告 (帯の 色が 期待度)
+    function cut(fx) {
+        const t = box();
+        t.className = 'show over';
+        t.innerHTML = `<div class="tcut band-${fx.col} small"><div class="tband"></div><div class="tface">${face(fx.art || 'koori', 96)}</div><div class="tname"><b>${fx.text}</b></div></div>`;
+        if (typeof Sound !== 'undefined') Sound.se.kyuin();
+        clearTimeout(cut.t);
+        cut.t = setTimeout(() => { t.className = ''; t.innerHTML = ''; }, 1500);
+    }
+    return { intro, last, notice, cut };
 })();

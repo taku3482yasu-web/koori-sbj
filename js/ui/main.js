@@ -53,7 +53,7 @@
             setTimeout(() => { $('freeze').classList.remove('show'); LCD.flash(g.freeze, '#ff4'); Sound.se.big(); start(); }, E.P.freezeMs);
         } else if (h.delay) setTimeout(start, 550);   // リール始動音の 遅れ (高確濃厚)
         else start();
-        if (S().custom.sakibare && g.aim != null && g.modeAtLever === 'rcJudge') Sound.se.saki();
+        if (S().custom.sakibare && (g.aim != null || g.award != null) && g.modeAtLever === 'rcJudge') Sound.se.saki();
         renderNav(g);
         LCD.render(E, G, 'lever');
         leverEvents(g);
@@ -73,15 +73,19 @@
             else if (ev.t === 'up') { LCD.flash(ev.text, '#5ff'); Sound.se.win(); }
             else if (ev.t === 'slide') LCD.flash(ev.text, '#aaa');
             else if (ev.t === 'stock') { LCD.flash(ev.text, '#ff5'); Sound.se.win(); }
-            else if (ev.t === 'bbfx' || ev.t === 'set' || ev.t === 'pose') LCD.fxBar(`<b>${ev.t === 'bbfx' ? 'ボーナス演出' : ev.t === 'set' ? '設定示唆' : 'ストック示唆'}</b>${ev.text}`);
+            else if (ev.t === 'bbfx' || ev.t === 'set' || ev.t === 'pose') {
+                LCD.fxBar(`<b>${ev.t === 'bbfx' ? 'ボーナス演出' : ev.t === 'set' ? '設定示唆' : 'ストック示唆'}</b>${ev.text}`);
+                if (ev.t === 'bbfx') Anim.bbfx(ev.text); else if (ev.t === 'pose') Anim.pose(ev.text); else Anim.endChar(ev.text);
+            }
         }
         if (g.aim != null) { LCD.cutin(g.aim >= 3 ? 'rainbow' : 'red'); Sound.se.kyuin(); }
+        if (g.award != null) { LCD.cutin('rainbow'); Sound.se.kyuin(); setTimeout(Sound.se.big, 500); }
         if (g.battle && g.battle.phase === 'start') Sound.se.card();
     }
     // 演出の 文字 (at = 0 レバー・1〜3 = 第n停止)
     function showFx(g, at) {
         const lines = [];
-        if (g.fx && (g.fx.at || 0) === at) lines.push(`<b>${g.fx.name}</b>${g.fx.text}`);
+        if (g.fx && (g.fx.at || 0) === at) { lines.push(`<b>${g.fx.name}</b>${g.fx.text}`); Anim.play(g.fx); }
         const od = g.oddity;
         if (od && ((at === 1 && /第1/.test(od)) || (at === 2 && /第2/.test(od)) || (at === 3 && /第3/.test(od)) || (at === 0 && !/第\d/.test(od)))) {
             if (/下パネル消灯/.test(od)) $('lowerPanel').classList.add('off');
@@ -181,7 +185,7 @@
             if (ev.t === 'miss') msgs.push([ev.text, '#aaa']);
             if (ev.t === 'bonusEnd') {
                 msgs.push([`${SBJ.BONUS_NAMES[ev.bonus.type]} 終了　${ev.bonus.paid} 枚`, '#fff']);
-                if (ev.bonus.endChar) msgs.push(['サブ液晶: ' + ev.bonus.endChar, '#cdf']);
+                if (ev.bonus.endChar) { msgs.push(['サブ液晶: ' + ev.bonus.endChar, '#cdf']); setTimeout(() => Anim.endChar(ev.bonus.endChar), 1000); }
                 if (ev.bonus.trophy) msgs.push([ev.bonus.trophy, '#fd4']);
             }
         }

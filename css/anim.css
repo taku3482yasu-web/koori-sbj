@@ -1,0 +1,112 @@
+/* 演出の アニメーション (js/ui/anim.js) */
+#fxLayer { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+#main { transition: opacity .2s; }
+#lcd.fxon #main { opacity: .2; }
+.fx { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.fx-word { font-size: 30px; font-weight: 900; color: #fff; text-shadow: 0 0 10px #f0f, 0 3px 0 #000; }
+/* キャラ通過 */
+.fx.pass { justify-content: flex-start; align-items: flex-end; padding-bottom: 30px; }
+.fx.pass img { animation: pass 1.6s linear forwards; transform: translateX(-80px); }
+.fx.pass.rtl img { animation-name: pass-rtl; transform: translateX(500px) scaleX(-1); }
+@keyframes pass { 0% { transform: translateX(-80px) translateY(0); } 25% { transform: translateX(80px) translateY(-8px); } 50% { transform: translateX(200px) translateY(0); } 75% { transform: translateX(320px) translateY(-8px); } 100% { transform: translateX(480px) translateY(0); } }
+@keyframes pass-rtl { from { transform: translateX(480px) scaleX(-1); } to { transform: translateX(-90px) scaleX(-1); } }
+/* 巨大ペンちゃん */
+.fx.giant { align-items: flex-end; }
+.fx.giant img { transform: translateY(100%); }
+.fx.giant.peek img { animation: peek 1.9s ease-out forwards; }
+.fx.giant.sink img { animation: sink 1.9s ease-in-out forwards; }
+.fx.giant.jump img { animation: jump 1.9s cubic-bezier(.3, 1.6, .5, 1) forwards; }
+@keyframes peek { 0% { transform: translateY(100%); } 40%, 100% { transform: translateY(45%); } }
+@keyframes sink { 0% { transform: translateY(100%); } 35% { transform: translateY(45%); } 60% { transform: translateY(45%); } 100% { transform: translateY(100%); } }
+@keyframes jump { 0% { transform: translateY(100%); } 45% { transform: translateY(-10%) scale(1.1); } 100% { transform: translateY(0) scale(1); } }
+/* 部位演出 (足アップ・顔アップ) */
+.zoomwrap { width: 100%; height: 100%; display: flex; justify-content: center; animation: zoomin 1.5s ease-out forwards; }
+.zoomwrap.face { align-items: flex-start; } .zoomwrap.face img { margin-top: -20px; }
+.zoomwrap.foot { align-items: flex-end; } .zoomwrap.foot img { margin-bottom: -40px; }
+@keyframes zoomin { from { transform: scale(.4); opacity: 0; } 30% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
+/* ひとくち */
+.fx.bite img { animation: bite .3s ease-in-out 4 alternate; }
+@keyframes bite { to { transform: scale(1.15, .85); } }
+/* ぽんと 出る */
+.fx.pop > * { animation: pop 1.4s ease-out forwards; }
+@keyframes pop { 0% { transform: scale(0); opacity: 0; } 20% { transform: scale(1.2); opacity: 1; } 30% { transform: scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+.fx.corner { justify-content: flex-end; align-items: flex-end; padding: 0 10px 30px 0; }
+/* カーテン */
+.cur { position: absolute; top: 0; bottom: 0; width: 50%; background: repeating-linear-gradient(90deg, #a01020 0 14px, #d0283a 14px 28px); box-shadow: inset 0 -20px 30px #0006; }
+.cur.l { left: 0; transform: translateX(-100%); animation: curl 1.6s ease-in-out forwards; }
+.cur.r { right: 0; transform: translateX(100%); animation: curr 1.6s ease-in-out forwards; }
+@keyframes curl { 40%, 60% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+@keyframes curr { 40%, 60% { transform: translateX(0); } 100% { transform: translateX(100%); } }
+/* 発光 (シャンデリア・塔と 噴水) */
+.fx.glow { align-items: flex-start; padding-top: 26px; }
+.chand { width: 90px; height: 50px; border-radius: 0 0 45px 45px; background: radial-gradient(circle at 50% 30%, #fff8c0, #e8b020 60%, transparent 70%); animation: shine 1.4s ease-in-out forwards; }
+.tower { position: absolute; bottom: 30px; left: 30%; width: 26px; height: 120px; background: linear-gradient(#ffe9a0, #c08020); clip-path: polygon(50% 0, 100% 20%, 80% 100%, 20% 100%, 0 20%); animation: shine 1.4s ease-in-out forwards; }
+.fountain { position: absolute; bottom: 30px; right: 26%; width: 60px; height: 70px; border-radius: 50% 50% 0 0; background: radial-gradient(ellipse at 50% 100%, #bff0ff, transparent 70%); animation: shine 1.4s ease-in-out forwards; }
+@keyframes shine { 0% { filter: brightness(.6); opacity: .3; } 40% { filter: brightness(1.4); opacity: 1; } 100% { opacity: 0; } }
+.fx.glow.strong > * { animation-name: shine-strong; }
+@keyframes shine-strong { 0% { filter: brightness(.6); opacity: .3; } 30% { filter: brightness(2.4) drop-shadow(0 0 30px #fff); opacity: 1; } 70% { filter: brightness(2) drop-shadow(0 0 30px #ff0); opacity: 1; } 100% { opacity: 0; } }
+/* レーザー文字 */
+.beam { position: absolute; top: 50%; left: 50%; width: 140%; height: 3px; background: linear-gradient(90deg, transparent, #0ff, #f0f, transparent); }
+.beam.a { animation: beam 1.6s linear forwards; } .beam.b { animation: beam 1.6s linear reverse forwards; }
+@keyframes beam { from { transform: translate(-50%, -50%) rotate(-30deg); } to { transform: translate(-50%, -50%) rotate(30deg); opacity: 0; } }
+.laser-word { font-size: 34px; font-weight: 900; letter-spacing: 4px; color: #fff; text-shadow: 0 0 8px #0ff, 0 0 16px #f0f; animation: laser 1.6s ease-out forwards; }
+@keyframes laser { 0% { clip-path: inset(0 100% 0 0); } 40% { clip-path: inset(0 0 0 0); } 85% { opacity: 1; } 100% { opacity: 0; } }
+/* 花火 */
+.burst { position: absolute; top: 45%; left: 50%; }
+.burst i { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #ffe066; box-shadow: 0 0 8px #ff0; transform: rotate(var(--a)) translateX(0); animation: spark 1.2s ease-out forwards; }
+@keyframes spark { to { transform: rotate(var(--a)) translateX(90px); opacity: 0; } }
+.fw-mark { font-size: 44px; font-weight: 900; color: #fff; text-shadow: 0 0 12px #fff; animation: pop 1.6s ease-out forwards; }
+.fw-mark.red { color: #ff4060; }
+/* チャイナロゴ */
+.china-logo { width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 56px; font-weight: 900; color: #ffd54a; background: radial-gradient(#c01818, #600); border: 4px solid #ffd54a; box-shadow: 0 0 20px #f00; }
+.china-logo.joker { width: auto; height: auto; border-radius: 12px; padding: 6px 16px; font-size: 32px; background: linear-gradient(135deg, #a0f, #f0a); }
+.fx.china > * { animation: spinin 1.5s ease-out forwards; }
+@keyframes spinin { 0% { transform: rotate(-540deg) scale(0); } 45% { transform: rotate(0) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+/* ホロトランプ・トランプ投げ */
+.holo { width: 64px; height: 90px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 34px; font-weight: 900; color: #111; background: linear-gradient(135deg, #fff, #bff, #fbf, #ffb, #fff); background-size: 300% 300%; box-shadow: 0 0 20px #fff; }
+.holo span { font-size: 24px; }
+.fx.holo-in .holo { animation: holo 1.5s ease-out forwards; }
+@keyframes holo { 0% { transform: perspective(300px) rotateY(90deg); background-position: 0 0; } 40% { transform: perspective(300px) rotateY(0); } 80% { background-position: 100% 100%; opacity: 1; } 100% { opacity: 0; } }
+.fx.throw .holo { animation: throw 1.2s ease-out forwards; }
+@keyframes throw { 0% { transform: translate(-200px, 100px) rotate(-200deg) scale(.5); } 50% { transform: translate(0, 0) rotate(0) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+/* 手紙 */
+.letter { font-size: 48px; display: flex; align-items: center; gap: 8px; color: #fff; }
+.letter span { font-size: 14px; font-weight: 900; background: #fffbe8; color: #444; padding: 6px 10px; border-radius: 6px; }
+.letter.blue span { color: #1d5fd6; } .letter.red span { color: #e3171e; }
+.fx.slide-up > * { animation: slideup 1.6s ease-out forwards; }
+@keyframes slideup { 0% { transform: translateY(180px); } 35% { transform: translateY(0); } 85% { opacity: 1; } 100% { opacity: 0; } }
+/* 祇園の 鐘 */
+.fx.temple { flex-direction: column; }
+.bell { width: 70px; height: 80px; background: linear-gradient(90deg, #7a5a20, #d8b050, #7a5a20); border-radius: 30px 30px 6px 6px; transform-origin: 50% 0; animation: swing .4s ease-in-out 4 alternate; }
+@keyframes swing { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+.bang { font-size: 30px; font-weight: 900; color: #ff4; text-shadow: 0 0 8px #f80; animation: pop 1.6s ease-out forwards; }
+/* 池の コイ */
+.fx.swim { align-items: flex-end; padding-bottom: 50px; }
+.koi { width: 70px; height: 26px; border-radius: 50% 40% 40% 50%; background: radial-gradient(circle at 30% 40%, #fff 0 18%, #ff6a1a 20%); position: relative; animation: koi 1.7s ease-in-out forwards; }
+.koi::after { content: ""; position: absolute; right: -16px; top: 3px; border-left: 18px solid #ff6a1a; border-top: 10px solid transparent; border-bottom: 10px solid transparent; }
+.fx.swim.strong .koi { background: radial-gradient(circle at 30% 40%, #fff 0 18%, #ffd54a 20%); box-shadow: 0 0 20px #ffd54a; animation-name: koi-big; }
+.fx.swim.strong .koi::after { border-left-color: #ffd54a; }
+@keyframes koi { from { transform: translateX(-260px) translateY(10px); } 50% { transform: translateX(0) translateY(-10px); } to { transform: translateX(260px) translateY(10px); } }
+@keyframes koi-big { from { transform: translateX(-260px) translateY(10px) scale(1.4); } 50% { transform: translateX(0) translateY(-10px) scale(1.4); } to { transform: translateX(260px) translateY(10px) scale(1.4); } }
+/* 扇子 */
+.fan { width: 160px; height: 80px; border-radius: 80px 80px 0 0; background: repeating-conic-gradient(from -90deg at 50% 100%, #fff 0 9deg, #e8e0c8 9deg 18deg); transform-origin: 50% 100%; animation: fan 1.5s ease-out forwards; }
+.fx.fan-open.red .fan { background: repeating-conic-gradient(from -90deg at 50% 100%, #e3171e 0 9deg, #ff6a6a 9deg 18deg); }
+@keyframes fan { 0% { transform: scaleX(.05); } 40% { transform: scaleX(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+/* 傘 */
+.fx.umbrella { inset: auto; top: 0; width: 70px; height: 100%; margin-left: -35px; align-items: flex-start; }
+.umb { width: 70px; height: 36px; border-radius: 35px 35px 0 0; background: repeating-conic-gradient(from -90deg at 50% 100%, #c0282a 0 22.5deg, #f0d8a0 22.5deg 45deg); position: relative; animation: umbdrop 1.6s ease-out forwards; }
+.umb::after { content: ""; position: absolute; left: 34px; top: 36px; width: 3px; height: 34px; background: #6a4a20; }
+.fx.umbrella.open .umb { animation-name: umbopen; }
+@keyframes umbdrop { 0% { transform: translateY(-80px); } 40% { transform: translateY(70px); } 85% { opacity: 1; } 100% { transform: translateY(70px); opacity: 0; } }
+@keyframes umbopen { 0% { transform: translateY(70px) scaleX(.1); } 40% { transform: translateY(70px) scaleX(1); } 85% { opacity: 1; } 100% { transform: translateY(70px); opacity: 0; } }
+/* セリフ */
+.fx.talk { gap: 6px; }
+.fx.talk > * { animation: pop 1.8s ease-out forwards; }
+.bubble { background: #fff; color: #222; font-weight: 900; font-size: 16px; padding: 8px 12px; border-radius: 14px; position: relative; }
+.bubble::before { content: ""; position: absolute; left: -10px; top: 50%; margin-top: -6px; border-right: 12px solid #fff; border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+/* 電光掲示板 */
+.board { background: #111; border: 3px solid #444; border-radius: 6px; padding: 6px 18px; }
+.board span { font-family: monospace; font-size: 40px; font-weight: 900; color: #ff3030; text-shadow: 0 0 10px #f00; letter-spacing: 6px; }
+/* 赤月 */
+.moon { width: 90px; height: 90px; border-radius: 50%; background: radial-gradient(circle at 40% 40%, #fff8e0, #e8d090); box-shadow: 0 0 30px #ffe; }
+.moon.red { background: radial-gradient(circle at 40% 40%, #ffb0a0, #c01818); box-shadow: 0 0 40px #f00; }

@@ -21,13 +21,12 @@
         REACH_A:  { name: 'リーチ目A',    reels: [P2, [A, 'REP', A], [A, 'CHE', A]] },
         // リーチ目B = 左 P3 で、ほかの どの 形にも ならない (形の 一覧には 入れず reel-control.js で あつかう)
         PINCH:    { name: 'ピンチ目',     reels: [['BEL', 'B7', 'REP'], [A, 'CHE', A], [A, A, 'BEL']] },
-        // ボーナス (狙えゲーム・中段)。★ EP・SST は 仮決め (設計書 13 章 未決)。金BAR (SP エピソード) は 中段 BAR 揃いを 金色で 見せる (REG と 同じ 形)
+        // ボーナス (狙えゲーム・中段)。金BAR (SP エピソード) は 中段 BAR 揃いを 金色で 見せる (REG と 同じ 形)
+        // エピソード・スーパーストックタイムは 図柄を 揃えず 抽選で 移行する (2026-11-19 ユーザー) → 停止形なし
         REG:  { name: 'レギュラー',               reels: [[A, 'BAR', A], [A, 'BAR', A], [A, 'BAR', A]] },
         RBIG: { name: '赤7ビッグ',                reels: [[A, 'R7', A], [A, 'R7', A], [A, 'R7', A]] },
         BBIG: { name: '青7ビッグ',                reels: [[A, 'B7', A], [A, 'B7', A], [A, 'B7', A]] },
         SBIG: { name: 'スーパービッグ',           reels: [[A, 'R7', A], [A, 'B7', A], [A, 'R7', A]] },
-        EP:   { name: 'エピソード',               reels: [[A, 'BAR', A], [A, 'B7', A], [A, 'BAR', A]] },   // ★
-        SST:  { name: 'スーパーストックタイム',   reels: [[A, 'B7', A], [A, 'R7', A], [A, 'B7', A]] },     // ★
     };
     // 成立役 → 狙う 停止形 (MISS = どの 形にも しない・REACH_B = 左 P3 で どの 形にも しない)
     SBJ.FLAG_SHAPES = {
@@ -38,5 +37,6 @@
     // 4 コマで 作れなければ 取りこぼし に なる 役 (レア役 + ピンチ目)
     SBJ.CAN_MISS = { CHE: 1, SUI: 1, CBELL: 1, CHANCE: 1, REACH: 1, PINCH: 1 };
     // ボーナスの 段階 → 停止形 (0 REG・1 赤7BIG・2 青7BIG・3 スーパーBIG・4 エピソード・5 SST・6 金BAR = 中段 BAR 揃いを 金色で)
-    SBJ.BONUS_PAT = ['REG', 'RBIG', 'BBIG', 'SBIG', 'EP', 'SST', 'REG'];
+    // null = 揃えない (そのゲームで「確定」を 知らせて 抽選で 移行)
+    SBJ.BONUS_PAT = ['REG', 'RBIG', 'BBIG', 'SBIG', null, null, 'REG'];
 })(globalThis.SBJ || (globalThis.SBJ = {}));

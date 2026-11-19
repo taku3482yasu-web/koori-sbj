@@ -75,6 +75,7 @@ const LCD = (() => {
         const lever = when === 'lever';
         if (G && lever && G.battle) html = battleHTML(E, G.battle, false);
         else if (G && lever && G.aim != null) html = `<div class="big" style="color:#ff5">狙え!!</div><div class="mid">${AIM_TEXT[G.aim]}</div>`;
+        else if (G && lever && G.award != null) html = `${koori(56)}<div class="big" style="color:#ff5">${BONUS_NAMES[G.award]}</div><div class="big">確定!!</div>`;
         else {
             switch (S.mode) {
                 case 'normal': case 'rchigh': {

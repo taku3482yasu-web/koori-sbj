@@ -6,20 +6,20 @@
 // at: 0 = レバーオン・1 = 第1停止・3 = 第3停止
 (function (SBJ) {
     'use strict';
-    // 本家の キャラ → こおりくん版 ((仮) は 仮キャラ)
+    // 本家の キャラ → こおりくん版 (ゆきだるマン〜ゆきうさ兄弟は この 台の 新しい キャラ。絵は js/ui/art-new.js)
     const CAST = {
-        main: 'こおりくん', orin: 'おにおに', clark: 'おかがっぱ', tiffany: 'ゆきだるマン(仮)', rosa: 'つららちゃん(仮)',
-        howard: 'しろくま支配人(仮)', mint: 'ペンちゃん(仮)', rina: 'かきごおりちゃん(仮)', ilel: 'ゆきうさ兄弟(仮)', joker: 'ジョーカー',
+        main: 'こおりくん', orin: 'おにおに', clark: 'おかがっぱ', tiffany: 'ゆきだるマン', rosa: 'つららちゃん',
+        howard: 'しろくま支配人', mint: 'ペンちゃん', rina: 'かきごおりちゃん', ilel: 'ゆきうさ兄弟', joker: 'ジョーカー',
     };
     SBJ.CAST = CAST;
     // 対戦相手 (期待度の 低い順)。art = シリーズの ドット絵 (なければ 名前だけ)
     SBJ.OPPS = [
         { key: 'orin', name: CAST.orin, color: 'black', art: 'onioni' },
         { key: 'clark', name: CAST.clark, color: 'red', art: 'okagappa' },
-        { key: 'tiffany', name: CAST.tiffany, color: 'black' },
-        { key: 'rosa', name: CAST.rosa, color: 'red' },
-        { key: 'howard', name: CAST.howard, color: 'black' },
-        { key: 'mint', name: CAST.mint, color: 'red' },
+        { key: 'tiffany', name: CAST.tiffany, color: 'black', art: 'tiffany' },
+        { key: 'rosa', name: CAST.rosa, color: 'red', art: 'rosa' },
+        { key: 'howard', name: CAST.howard, color: 'black', art: 'howard' },
+        { key: 'mint', name: CAST.mint, color: 'red', art: 'mint' },
     ];
     // 当選契機ランプ (準備中・こおりチャンス中のサブ液晶)
     SBJ.LED = {

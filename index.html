@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#05070d">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' shape-rendering='crispEdges'%3E%3Crect width='14' height='12' fill='%231b3566'/%3E%3Crect x='1' y='1' width='12' height='10' fill='%23c6f0ff'/%3E%3Crect x='4' y='4' width='1' height='2' fill='%230e1626'/%3E%3Crect x='9' y='4' width='1' height='2' fill='%230e1626'/%3E%3Crect x='6' y='7' width='2' height='1' fill='%230e1626'/%3E%3Crect x='2' y='12' width='3' height='2' fill='%231b3566'/%3E%3Crect x='9' y='12' width='3' height='2' fill='%231b3566'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/anim.css">
 </head>
 <body>
 <div id="cab">
@@ -21,6 +22,7 @@
         <div id="stage">カジノステージ</div>
         <div id="sub"></div>
         <div id="main"></div>
+        <div id="fxLayer"></div>
         <div id="cutin"></div>
         <div id="flash"></div>
         <div id="fxBar"></div>
@@ -55,7 +57,7 @@
     </div>
     <div id="data"></div>
     <div id="debug"></div>
-    <div id="help">打ち方: ナビが ない ときは 左リールから。左リールの BAR を 枠上〜上段に 狙う (最大 4 コマ すべる)。左上段に スイカが 止まったら 中リールに スイカを 狙う<br>Space / Enter: レバー　Z X C (または ← ↓ →、1 2 3): ストップ　H: HIT　S: STAND<br>第3停止を 長押しすると バトル最終G の カットインが 出る。PUSH は ボーナス準備中に 押すと 色で 種類を 示唆<br>※ (仮) の ついた キャラは 仮キャラ</div>
+    <div id="help">打ち方: ナビが ない ときは 左リールから。左リールの BAR を 枠上〜上段に 狙う (最大 4 コマ すべる)。左上段に スイカが 止まったら 中リールに スイカを 狙う<br>Space / Enter: レバー　Z X C (または ← ↓ →、1 2 3): ストップ　H: HIT　S: STAND<br>第3停止を 長押しすると バトル最終G の カットインが 出る。PUSH は ボーナス準備中に 押すと 色で 種類を 示唆</div>
 </div>
 
 <script src="js/data/reels.js"></script>
@@ -71,12 +73,14 @@
 <script src="js/engine/engine.js"></script>
 <script src="assets/assets.js"></script>
 <script src="js/ui/art-legacy.js"></script>
+<script src="js/ui/art-new.js"></script>
 <script src="js/ui/pixel-hd.js"></script>
 <script src="js/ui/art.js"></script>
 <script src="js/ui/symbols.js"></script>
 <script src="js/ui/sound.js"></script>
 <script src="js/ui/reels-view.js"></script>
 <script src="js/ui/lcd.js"></script>
+<script src="js/ui/anim.js"></script>
 <script src="js/ui/panel.js"></script>
 <script src="js/ui/main.js"></script>
 </body>

@@ -173,7 +173,9 @@
                 aimGame(g, t, () => { S.prep = null; if (t === 5) enterST(true, 'ボーナス直撃'); else startBonus(t, r); });
             }
         }
+        // 狙えゲーム: 図柄を 揃えて 獲得。停止形の ない 段階 (エピソード・SST) は 揃えずに「確定」を 知らせて 移行
         function aimGame(g, type, after) {
+            if (BONUS_PAT[type] == null) { g.award = type; g.post.push(after); return; }
             g.display = BONUS_PAT[type]; g.aim = type; g.nav = null; g.order = null;
             g.post.push(after);
         }

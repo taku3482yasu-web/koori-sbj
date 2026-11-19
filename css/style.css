@@ -1,0 +1,161 @@
+/* こおりくんの スーパーブラックジャック — 縦長の 筐体 1 画面 (最大 はば 470px) */
+:root {
+    --cell: 60px; --rw: 92px;
+    --ice: #7fd8ff; --gold: #ffd54a;
+    --bg: #05070d; --ink: #eef;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+    margin: 0; min-height: 100vh; color: var(--ink);
+    background: radial-gradient(circle at 50% 0, #1c2a4a, var(--bg) 70%);
+    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+    display: flex; justify-content: center; align-items: flex-start; padding: 10px;
+    user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+}
+button, select { font: inherit; }
+#cab { width: 100%; max-width: 470px; background: linear-gradient(#2a2f45, #151826); border: 3px solid #5b6aa0; border-radius: 18px; padding: 10px; box-shadow: 0 0 30px #0008, inset 0 0 20px #0006; }
+#top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+#title { font-weight: 900; font-size: 14px; line-height: 1.15; text-align: center; letter-spacing: .5px; background: linear-gradient(90deg, var(--ice), #fff, var(--gold)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lamp { font-size: 11px; font-weight: 900; padding: 3px 7px; border-radius: 6px; background: #222; color: #555; border: 1px solid #444; flex: none; }
+.lamp.on { color: #fff; background: linear-gradient(135deg, #a0f, #f0a); box-shadow: 0 0 10px #f0f; animation: blink .6s infinite alternate; }
+.lamp.goldon { color: #3a2a00; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+@keyframes blink { to { filter: brightness(1.6); } }
+
+/* ランプルーレット */
+#roulette { display: flex; justify-content: center; gap: 5px; margin: 0 0 6px; }
+.rl { width: 12px; height: 12px; border-radius: 50%; background: #333; border: 1px solid #555; }
+.rl.on { background: #ff4; box-shadow: 0 0 8px #ff4; }
+.rl.good { width: auto; border-radius: 6px; font-size: 8px; line-height: 12px; padding: 0 4px; color: #666; }
+.rl.good.on { color: #000; }
+
+/* 液晶 */
+#lcd { position: relative; height: 250px; border-radius: 10px; overflow: hidden; border: 3px solid #111; background: #0b3b2a; transition: background .5s; }
+#lcd.casino { background: radial-gradient(circle at 50% 40%, #1f6b4d, #06251a); }
+#lcd.china { background: radial-gradient(circle at 50% 40%, #9b1b1b, #2b0505); }
+#lcd.japan { background: radial-gradient(circle at 50% 40%, #5b3a9e, #160b2e); }
+#lcd.hawaii { background: radial-gradient(circle at 50% 40%, #ff9a3c, #7a2a00); }
+#lcd.bonus { background: radial-gradient(circle at 50% 40%, #c9a000, #3d2a00); }
+#lcd.rc { background: radial-gradient(circle at 50% 40%, #1565c0, #020c26); }
+#lcd.rc.red { background: radial-gradient(circle at 50% 40%, #c62828, #2b0505); }
+#lcd.st { background: radial-gradient(circle at 50% 40%, #00897b, #00201c); }
+#lcd.sst { background: conic-gradient(from 0deg, #f44, #fd4, #4f8, #4cf, #a4f, #f44); }
+#lcd.sst #main { background: #0009; }
+#lcd.ending { background: radial-gradient(circle at 50% 40%, #fff3, #000), conic-gradient(#f44, #fd4, #4f8, #4cf, #a4f, #f44); }
+#stage, #sub { position: absolute; top: 6px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #0007; z-index: 2; }
+#stage { left: 8px; } #sub { right: 8px; }
+#main { position: absolute; inset: 0; padding: 28px 10px 26px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; }
+.big { font-size: 26px; font-weight: 900; text-shadow: 0 2px 0 #000, 0 0 12px #fff6; }
+.mid { font-size: 15px; font-weight: 800; }
+.small { font-size: 12px; opacity: .9; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 14px; font-weight: 900; font-size: 13px; }
+.koori { background: var(--ice); color: #033; }
+.opp { background: #333; color: #fff; border: 1px solid #888; }
+.row { display: flex; align-items: center; gap: 6px; justify-content: center; }
+.side { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.tot { font-size: 20px; font-weight: 900; min-width: 30px; }
+img.chara { image-rendering: auto; display: block; filter: drop-shadow(0 2px 2px #0008); }
+.who { display: flex; align-items: center; gap: 6px; }
+.namechip { font-size: 11px; font-weight: 900; padding: 2px 6px; border-radius: 8px; background: #fff2; border: 1px dashed #fff6; }
+.card { width: 30px; height: 42px; border-radius: 5px; background: #fff; color: #111; font-weight: 900; font-size: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; box-shadow: 0 2px 4px #0008; animation: deal .25s; }
+.card span { font-size: 13px; }
+.card.red { color: #d11; }
+.card.wild { background: linear-gradient(135deg, #ff0, #f0f, #0ff); color: #000; }
+.card.back { background: repeating-linear-gradient(45deg, #234 0 4px, #345 4px 8px); border: 2px solid #9ab; }
+.card.back.green { border-color: #3f6; box-shadow: 0 0 10px #3f6; }
+.card.back.blue { border-color: #39f; box-shadow: 0 0 10px #39f; }
+.card.back.red { border-color: #f33; box-shadow: 0 0 12px #f33; }
+.card.back.gold { border-color: var(--gold); box-shadow: 0 0 16px var(--gold); }
+@keyframes deal { from { transform: translateY(-20px) rotate(-10deg); opacity: 0; } }
+.hit { font-weight: 900; font-size: 18px; padding: 0 10px; }
+.hit.blue { color: #6bf; } .hit.green { color: #5f8; } .hit.red { color: #f55; } .hit.gold { color: var(--gold); text-shadow: 0 0 8px var(--gold); }
+.ladder { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+.lad { font-size: 10px; font-weight: 800; padding: 5px 4px; border-radius: 5px; background: #0006; border: 1px solid #fff3; min-width: 50px; opacity: .55; }
+.lad.cur { opacity: 1; background: #fff; color: #000; transform: scale(1.12); box-shadow: 0 0 12px #fff; }
+.lad.gold { border-color: var(--gold); color: var(--gold); }
+.lad.cur.gold { background: var(--gold); color: #000; }
+#cutin { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 5; }
+#cutin.show { animation: cut .7s; }
+@keyframes cut { 0% { opacity: 0; } 15% { opacity: .85; } 100% { opacity: 0; } }
+#flash { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; font-size: 26px; font-weight: 900; z-index: 6; pointer-events: none; opacity: 0; text-shadow: 0 0 10px #000, 0 3px 0 #000; padding: 0 8px; }
+#flash.show { animation: fl 1.3s; }
+@keyframes fl { 0% { opacity: 0; transform: translateY(-50%) scale(2); } 15% { opacity: 1; transform: translateY(-50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
+#fxBar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; font-size: 11.5px; font-weight: 700; padding: 4px 8px; background: #000a; min-height: 22px; color: #fff; opacity: 0; transition: opacity .2s; }
+#fxBar.show { opacity: 1; }
+#fxBar b { color: var(--gold); margin-right: 4px; }
+#blackout { position: absolute; inset: 0; background: #000; z-index: 7; display: none; }
+#blackout.show { display: block; }
+#freeze { position: absolute; inset: 0; z-index: 8; display: none; align-items: center; justify-content: center; flex-direction: column; background: #000; color: #fff; font-weight: 900; font-size: 30px; letter-spacing: 4px; }
+#freeze.show { display: flex; }
+#freezeTxt { font-size: 15px; letter-spacing: 0; margin-top: 10px; }
+#lowerPanel { height: 10px; border-radius: 4px; margin: 6px 0 0; background: linear-gradient(90deg, var(--ice), #fff, var(--gold)); transition: opacity .1s; }
+#lowerPanel.off { opacity: .08; }
+#lowerPanel.blink { animation: blink .25s infinite alternate; }
+
+/* ナビ・リール */
+#navRow { display: flex; justify-content: center; gap: 8px; height: 24px; margin-top: 4px; }
+.navNum { width: var(--rw); text-align: center; font-weight: 900; font-size: 18px; color: var(--gold); text-shadow: 0 0 6px #f80; }
+#reelWin { position: relative; display: flex; justify-content: center; gap: 8px; background: #000; padding: 6px; border-radius: 8px; border: 2px solid #444; }
+.reel { position: relative; width: var(--rw); height: calc(var(--cell) * 3); overflow: hidden; background: linear-gradient(#bbb, #fff 25%, #fff 75%, #bbb); border-radius: 4px; transition: filter .1s; }
+.reel.off { filter: brightness(.15); }
+.cell { position: absolute; left: 0; width: 100%; height: var(--cell); display: flex; align-items: center; justify-content: center; }
+.cell.win { background: #ff04; box-shadow: inset 0 0 12px #fa0; }
+.cell.goldbar { filter: sepia(1) saturate(4) hue-rotate(5deg) brightness(1.1); }
+.sym { display: block; max-width: 100%; filter: drop-shadow(0 1px 0 #0003); }
+#line { position: absolute; left: 4px; right: 4px; top: calc(6px + var(--cell) * 1.5); height: 2px; background: #f004; pointer-events: none; }
+
+/* サブ液晶・パネル */
+#subLcd { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; padding: 5px 8px; border-radius: 6px; font-size: 11px; font-family: monospace; color: #fff; background: #1a3a8a; min-height: 30px; }
+#subLcd.green { background: #1d6b33; } #subLcd.red { background: #8a1a1a; }
+#subG { font-size: 16px; font-weight: 900; color: #fff; min-width: 56px; }
+#subG.blue { color: #6cf; } #subG.yellow { color: #ff5; } #subG.green { color: #6f6; } #subG.red { color: #f66; }
+.die { display: inline-flex; width: 22px; height: 22px; border-radius: 5px; background: #fff; color: #000; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-right: 3px; }
+.die.red { background: #e22; color: #fff; }
+.led { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin: 0 4px; vertical-align: middle; border: 1px solid #fff8; }
+.led.blink { animation: blink .3s infinite alternate; }
+#panel { display: flex; justify-content: space-around; margin: 8px 0; font-size: 11px; background: #000; border-radius: 6px; padding: 4px; font-family: monospace; }
+#panel b { color: #f44; font-size: 18px; margin-left: 4px; }
+
+/* ボタン */
+#rcBtns { display: none; gap: 8px; margin-bottom: 8px; }
+#rcBtns.show { display: flex; }
+#rcBtns button { flex: 1; font-size: 18px; font-weight: 900; padding: 12px; border-radius: 10px; border: none; cursor: pointer; color: #fff; }
+#btnHit { background: #2e7d32; } #btnStand { background: #c62828; }
+#ctrl { display: flex; gap: 6px; align-items: stretch; }
+#ctrl button { border: none; border-radius: 10px; cursor: pointer; font-weight: 900; color: #fff; touch-action: manipulation; }
+#btnLever { flex: 1.2; background: linear-gradient(#e33, #911); font-size: 15px; padding: 8px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#btnLever small { font-size: 10px; opacity: .8; }
+.stop { flex: 1; background: linear-gradient(#556, #223); font-size: 20px; padding: 16px 0; }
+.stop.lit { background: linear-gradient(#f73, #b40); box-shadow: 0 0 10px #f80; }
+#btnPush { flex: .9; font-size: 13px; background: #555; border-radius: 50% !important; aspect-ratio: 1; }
+#btnPush.white { background: #eee; color: #000; box-shadow: 0 0 12px #fff; }
+#btnPush.red { background: #e22; box-shadow: 0 0 12px #f44; }
+#btnPush.blue { background: #16f; box-shadow: 0 0 12px #39f; }
+#btnPush.redblue { background: linear-gradient(90deg, #e22 50%, #16f 50%); box-shadow: 0 0 14px #f4f; }
+#btnPush.yellow { background: #fd0; color: #000; box-shadow: 0 0 12px #fd0; }
+#btnPush.rainbow { background: conic-gradient(#f44, #fd4, #4f8, #4cf, #a4f, #f44); color: #000; }
+#btnPush.lamp-on { outline: 3px solid #ff4; outline-offset: 2px; }
+#btnPush.lamp-fast { outline: 3px solid #ff4; outline-offset: 2px; animation: blink .12s infinite alternate; }
+#btnPush.lamp-alt { outline: 3px solid #f4f; outline-offset: 2px; animation: alt .3s infinite alternate; }
+@keyframes alt { from { outline-color: #f4f; } to { outline-color: #4ff; } }
+#subCtrl { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+#subCtrl > * { flex: 1; font-size: 12px; padding: 8px 4px; border-radius: 8px; border: 1px solid #556; background: #223; color: #dde; cursor: pointer; min-width: 70px; }
+#subCtrl #btnMute { flex: none; min-width: 44px; }
+#subCtrl select, #custom select { -webkit-appearance: none; appearance: none; background: #223; color: #dde; border: 1px solid #556; border-radius: 8px; text-align: center; }
+#custom select { padding: 4px 8px; }
+#subCtrl button.on { background: #3a5; color: #fff; }
+#custom { display: none; margin-top: 8px; font-size: 12px; background: #0008; border-radius: 8px; padding: 8px; gap: 8px; flex-wrap: wrap; }
+#custom.show { display: flex; }
+#custom label { display: flex; align-items: center; gap: 4px; }
+#data, #debug { margin-top: 8px; font-size: 11px; background: #0008; border-radius: 8px; padding: 6px 8px; line-height: 1.6; font-family: monospace; white-space: pre-wrap; }
+#debug { display: none; color: #9f9; }
+#help { margin-top: 6px; font-size: 10.5px; opacity: .7; line-height: 1.5; }
+
+/* せまい スマホ: リールと ボタンを 少し 小さく */
+@media (max-width: 380px) {
+    :root { --cell: 52px; --rw: 80px; }
+    body { padding: 6px; }
+    #cab { padding: 8px; }
+    #lcd { height: 230px; }
+    .stop { padding: 14px 0; }
+}

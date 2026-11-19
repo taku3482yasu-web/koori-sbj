@@ -1,0 +1,95 @@
+// キャラの ドット絵 (こおりくんシリーズの 前作から 写した: koori-medal の js/art-legacy.js ← koori-card ← koori-dungeon)
+// 1 文字 = 1 ドット。'.' は とうめい。palette の 文字 → 色
+// 仮キャラ (ゆきだるマン・つららちゃん・しろくま支配人・ペンちゃん など) は 絵が ないので 名前の 文字で 出す
+const LEGACY_ART = {
+    koori: {
+        w: 16, h: 16,
+        palette: {"o":"#1b3a6b","w":"#ffffff","c":"#bff0ff","b":"#7fd3f7","d":"#4aa8e0","k":"#10162a","p":"#ff9eb5"},
+        rows: [
+            '................',
+            '.oooooooooooooo.',
+            '.owwwcccccccbbo.',
+            '.owwccccccccbbo.',
+            '.owcccccccccbbo.',
+            '.occckcccckccbo.',
+            '.occckcccckccbo.',
+            '.ocpcccccccpcbo.',
+            '.occccckkccccbo.',
+            '.occcccccccccbo.',
+            '.obcccccccccbbo.',
+            '.obbbbbbbbbbbdo.',
+            '.oooooooooooooo.',
+            '...odo....odo...',
+            '...ooo....ooo...',
+            '................'
+        ]
+    },
+    onioni: {
+        w: 16, h: 16,
+        palette: {"h":"#f0e0a0","k":"#1a1a1a","r":"#d83a2a","d":"#b02a1a","y":"#ffe040","w":"#ffffff","m":"#5a0a0a","t":"#f0b020","g":"#4a3a2a","s":"#d0d0d0"},
+        rows: [
+            '.h.......h...gg.',
+            '.hkkkkkkkh...gs.',
+            '.kkkkkkkkkk..gg.',
+            '.krrrrrrrrk..sg.',
+            '.rkkrrrrkkr..gg.',
+            '.rykrrrrykr..gs.',
+            '.rrrrddrrrr..gg.',
+            '.rwmmmmmmwr.rsg.',
+            '..rrrrrrrr.rrgg.',
+            '.rrdrrrrdrrr.gg.',
+            'rr.rrrrrr.rr.gg.',
+            'dd.tktttkt.dd...',
+            '...tttttttt.....',
+            '...rr....rr.....',
+            '..ddd...ddd.....',
+            '................'
+        ]
+    },
+    okagappa: {
+        w: 32, h: 40,
+        palette: {"a":"#e8f8ff","b":"#bfe6f5","c":"#2f6a2f","d":"#5ab84a","e":"#469a3a","f":"#ffffff","g":"#111111","h":"#f0c040","i":"#c89a20","j":"#8a6a3a","k":"#e8e0a0","l":"#3a8a3a"},
+        rows: [
+            '................................',
+            '...........aaaaaaaaaa...........',
+            '..........bbbbbbbbbbbb..........',
+            '..........bbbbbbbbbbbb..........',
+            '........cccccccccccccccc........',
+            '.......cccccccccccccccccc.......',
+            '.......cccccccccccccccccc.......',
+            '.......cddddddddddddddddc.......',
+            '........dddddddddddddddd........',
+            '........dddddddddddddddd........',
+            '........dddfffddddfffddd........',
+            '........dddfggddddfggddd........',
+            '........dddfggddddfggddd........',
+            '........dddddddddddddddd........',
+            '........dddddhhhhhhddddd........',
+            '........dddddhhhhhhddddd........',
+            '........dddddhhhhhhddddd........',
+            '........eeeeeeiiiieeeeee........',
+            '........eeeeeeeeeeeeeeee........',
+            '.........dddddddddddddd.........',
+            '.......jjddddddddddddddjj.......',
+            '.......jjdddkkkkkkkkdddjj.......',
+            '.....dddjdddkkkkkkkkdddjddd.....',
+            '.....dddjdddkkkkkkkkdddjddd.....',
+            '.....dddjdddkkkkkkkkdddjddd.....',
+            '.....dddjdddkkkkkkkkdddjddd.....',
+            '.....dddjdddkkkkkkkkdddjddd.....',
+            '.....dddjdddkkkkkkkkdddjddd.....',
+            '....eeeejdddkkkkkkkkdddjeeee....',
+            '....eeeejdddkkkkkkkkdddjeeee....',
+            '....eeeejdddkkkkkkkkdddjeeee....',
+            '.........dddddddddddddd.........',
+            '..........eeeee..eeeee..........',
+            '..........eeeee..eeeee..........',
+            '..........eeeee..eeeee..........',
+            '..........eeeee..eeeee..........',
+            '..........eeeee..eeeee..........',
+            '.........llllllllllllll.........',
+            '.........llllllllllllll.........',
+            '................................'
+        ]
+    }
+};

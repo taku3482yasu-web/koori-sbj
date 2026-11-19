@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>こおりくんのスーパーブラックジャック</title>
+<meta name="description" content="こおりくんシリーズの スロット。前兆の BJ バトル・こおりチャンス・ストックタイムの ループ">
+<meta name="theme-color" content="#05070d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' shape-rendering='crispEdges'%3E%3Crect width='14' height='12' fill='%231b3566'/%3E%3Crect x='1' y='1' width='12' height='10' fill='%23c6f0ff'/%3E%3Crect x='4' y='4' width='1' height='2' fill='%230e1626'/%3E%3Crect x='9' y='4' width='1' height='2' fill='%230e1626'/%3E%3Crect x='6' y='7' width='2' height='1' fill='%230e1626'/%3E%3Crect x='2' y='12' width='3' height='2' fill='%231b3566'/%3E%3Crect x='9' y='12' width='3' height='2' fill='%231b3566'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="cab">
+    <div id="top">
+        <span class="lamp" id="lampJoker">JOKER</span>
+        <span id="title">こおりくんの<br>スーパーブラックジャック</span>
+        <span class="lamp" id="lampGold">金BAR</span>
+    </div>
+    <div id="roulette"><span class="rl"></span><span class="rl"></span><span class="rl"></span><span class="rl"></span><span class="rl good">Good Luck!</span><span class="rl"></span><span class="rl"></span><span class="rl"></span><span class="rl"></span></div>
+    <div id="lcd" class="casino">
+        <div id="stage">カジノステージ</div>
+        <div id="sub"></div>
+        <div id="main"></div>
+        <div id="cutin"></div>
+        <div id="flash"></div>
+        <div id="fxBar"></div>
+        <div id="blackout"></div>
+        <div id="freeze"><div>FREEZE</div><div id="freezeTxt"></div></div>
+    </div>
+    <div id="lowerPanel"></div>
+    <div id="navRow"><div class="navNum" id="nav0"></div><div class="navNum" id="nav1"></div><div class="navNum" id="nav2"></div></div>
+    <div id="reelWin"><div class="reel" id="reel0"></div><div class="reel" id="reel1"></div><div class="reel" id="reel2"></div><div id="line"></div></div>
+    <div id="subLcd"><span id="subG">0G</span><span id="subInfo"></span></div>
+    <div id="panel"><span>CREDIT<b id="credit">0</b></span><span>PAY<b id="pay">0</b></span><span>GAME<b id="gameNo">0</b></span></div>
+    <div id="rcBtns"><button id="btnHit">HIT <small>(H)</small></button><button id="btnStand">STAND <small>(S)</small></button></div>
+    <div id="ctrl">
+        <button id="btnLever">LEVER<small>Space</small></button>
+        <button class="stop" data-i="0">●</button>
+        <button class="stop" data-i="1">●</button>
+        <button class="stop" data-i="2">●</button>
+        <button id="btnPush">PUSH</button>
+    </div>
+    <div id="subCtrl">
+        <select id="setting" aria-label="設定"><option value="1">設定1</option><option value="2">設定2</option><option value="3">設定3</option><option value="4">設定4</option><option value="5">設定5</option><option value="6">設定6</option></select>
+        <button id="btnCoin">メダル +50</button>
+        <button id="btnAuto">オート</button>
+        <button id="btnDebug">内部状態</button>
+        <button id="btnCustom">演出カスタム</button>
+        <button id="btnMute" aria-label="音">🔊</button>
+    </div>
+    <div id="custom">
+        <label>ボーナス演出 <select id="cBB"><option value="koori">こおりBB</option><option value="shirokuma">しろくまBB</option><option value="joker">ジョーカーBB</option></select></label>
+        <label><input type="checkbox" id="cSimple">こおりチャンス シンプルモード</label>
+        <label><input type="checkbox" id="cSaki">先バレ (狙えの 前に 音)</label>
+    </div>
+    <div id="data"></div>
+    <div id="debug"></div>
+    <div id="help">打ち方: ナビが ない ときは 左リールから。左リールの BAR を 枠上〜上段に 狙う (最大 4 コマ すべる)。左上段に スイカが 止まったら 中リールに スイカを 狙う<br>Space / Enter: レバー　Z X C (または ← ↓ →、1 2 3): ストップ　H: HIT　S: STAND<br>第3停止を 長押しすると バトル最終G の カットインが 出る。PUSH は ボーナス準備中に 押すと 色で 種類を 示唆<br>※ (仮) の ついた キャラは 仮キャラ</div>
+</div>
+
+<script src="js/data/reels.js"></script>
+<script src="js/data/shapes.js"></script>
+<script src="js/data/params.js"></script>
+<script src="js/data/effects.js"></script>
+<script src="js/engine/cards.js"></script>
+<script src="js/engine/reel-control.js"></script>
+<script src="js/engine/lottery.js"></script>
+<script src="js/engine/battle.js"></script>
+<script src="js/engine/koori-chance.js"></script>
+<script src="js/engine/hints.js"></script>
+<script src="js/engine/engine.js"></script>
+<script src="assets/assets.js"></script>
+<script src="js/ui/art-legacy.js"></script>
+<script src="js/ui/pixel-hd.js"></script>
+<script src="js/ui/art.js"></script>
+<script src="js/ui/symbols.js"></script>
+<script src="js/ui/sound.js"></script>
+<script src="js/ui/reels-view.js"></script>
+<script src="js/ui/lcd.js"></script>
+<script src="js/ui/panel.js"></script>
+<script src="js/ui/main.js"></script>
+</body>
+</html>

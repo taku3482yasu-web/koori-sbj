@@ -6,7 +6,7 @@ const Panel = (() => {
         $('credit').textContent = S.credit;
         $('pay').textContent = lastPay;
         $('gameNo').textContent = S.sinceBig;
-        $('data').textContent =
+        $('dataSum').textContent =
             `総回転 ${S.games}G　BIG間 ${S.sinceBig}G\n` +
             `BIG ${st.big}　REG ${st.reg}　初当り ${st.first}${st.first ? ' (1/' + (S.games / st.first).toFixed(0) + ')' : ''}\n` +
             `こおりチャンス ${st.rc}　ST ${st.st}　SST ${st.sst}　JOKER ${st.joker}\n` +
@@ -38,5 +38,30 @@ const Panel = (() => {
         } else if (S.mode === 'normal') info = S.regStreak >= E.P.regCeil ? '次回 BIG 濃厚' : '';
         $('subInfo').innerHTML = info;
     }
-    return { update, debug, sub };
+    // 当たり履歴 (新しい 順)。h = [{ at: そこまでの G 数, kind, label, col, n: 総回転 }]
+    function hist(list) {
+        const el = $('dataHist');
+        if (!list.length) { el.textContent = 'まだ 当たりが ないよ'; return; }
+        el.innerHTML = list.slice().reverse().map((h, i) => `<div class="hrow"><span>${list.length - i}</span><b>${h.at}G</b><span class="hk" style="background:${h.col}">${h.label}</span><span style="opacity:.6">(${h.n}G目)</span></div>`).join('');
+    }
+    // スランプグラフ (差枚の うつりかわり)。d = { step, pts }
+    function graph(d, games) {
+        const cv = $('slump'), c = cv.getContext('2d'), W = cv.width, H = cv.height, pts = d.pts;
+        c.clearRect(0, 0, W, H);
+        const L = 70, R = 10, T = 12, B = 30;
+        let lo = Math.min(0, ...pts), hi = Math.max(0, ...pts);
+        if (hi - lo < 200) { const m = (hi + lo) / 2; hi = m + 100; lo = m - 100; }
+        const span = hi - lo, unit = span > 4000 ? 1000 : span > 1600 ? 500 : span > 600 ? 200 : 100;
+        const y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+        const n = Math.max(1, (pts.length - 1) * d.step), x = i => L + i * d.step / n * (W - L - R);
+        c.font = '18px monospace'; c.fillStyle = '#889'; c.strokeStyle = '#ffffff18'; c.lineWidth = 1;
+        for (let v = Math.ceil(lo / unit) * unit; v <= hi; v += unit) { c.beginPath(); c.moveTo(L, y(v)); c.lineTo(W - R, y(v)); c.stroke(); c.fillText((v > 0 ? '+' : '') + v, 2, y(v) + 6); }
+        c.strokeStyle = '#fff6'; c.beginPath(); c.moveTo(L, y(0)); c.lineTo(W - R, y(0)); c.stroke();
+        c.fillText('0G', L, H - 8); c.textAlign = 'right'; c.fillText(games + 'G', W - R, H - 8); c.textAlign = 'left';
+        if (pts.length < 2) return;
+        c.strokeStyle = '#ffd34a'; c.lineWidth = 3; c.beginPath();
+        pts.forEach((v, i) => (i ? c.lineTo(x(i), y(v)) : c.moveTo(x(i), y(v))));
+        c.stroke();
+    }
+    return { update, debug, sub, hist, graph };
 })();

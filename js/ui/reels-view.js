@@ -2,6 +2,7 @@
 const ReelsView = (() => {
     const { STRIPS } = SBJ;
     const SPEED = 18;   // コマ / 秒
+    let turbo = 1;      // オート 高速の ときは 速く 回す
     const LEN = i => STRIPS[i].length;
     const mod = (i, n) => ((n % LEN(i)) + LEN(i)) % LEN(i);
     const cellPx = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell')) || 60;
@@ -25,7 +26,7 @@ const ReelsView = (() => {
         const dt = Math.min(0.05, (now - last) / 1000); last = now;
         R.forEach((r, i) => {
             if (!r.spinning) return;
-            r.pos += SPEED * dt;
+            r.pos += SPEED * turbo * dt;
             if (r.target != null && r.pos >= r.target) {
                 r.spinning = false; r.pos = r.target % LEN(i); r.target = null;
                 draw(i); onStopped(i);
@@ -39,6 +40,7 @@ const ReelsView = (() => {
 
     return {
         R,
+        setTurbo(k) { turbo = k; },
         onStop(fn) { onStopped = fn; },
         startAll() { R.forEach(r => { r.spinning = true; r.target = null; r.el.classList.remove('off'); r.cells.forEach(c => c.classList.remove('win', 'goldbar')); }); },
         // すべり 0 で 止まる 上段の コマ番号

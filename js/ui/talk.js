@@ -18,7 +18,7 @@ const Talk = (() => {
     // 開始G: 登場カットイン → 相手の ひとこと → こおりくんの 返事。終わったら resolve
     async function intro(b, fast) {
         if (!b || !b.talk) return;
-        const t = box(), k = fast ? 0.55 : 1, opp = SBJ.OPPS[b.opp];
+        const t = box(), k = typeof fast === 'number' ? fast : fast ? 0.55 : 1, opp = SBJ.OPPS[b.opp];
         t.className = 'show';
         t.innerHTML = `<div class="tcut band-${b.talk.cut}"><div class="tband"></div><div class="tface">${face(opp.art, 112)}</div>
             <div class="tname"><small>${b.intro ? b.intro + 'から 発展 / ' : ''}${KIND[b.kind] || ''}</small><b>${opp.name}</b><em>が あらわれた!</em></div></div>`;

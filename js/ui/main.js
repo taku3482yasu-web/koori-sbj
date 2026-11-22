@@ -8,8 +8,10 @@
     let E = SBJ.createEngine({ setting: Number(params.get('setting')) || 1, seed: params.get('seed') ? Number(params.get('seed')) : undefined });
     const S = () => E.S;
     let introP = null;   // 登場カットインと 会話 (終わるまで 精算を 待つ)
-    let G = null, phase = 'idle', order = [], wins = [null, null, null], auto = false, lastPay = 0, holding = false;
+    let G = null, phase = 'idle', order = [], wins = [null, null, null], auto = false, autoLv = 0, lastPay = 0, holding = false;
     const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const fast = () => auto && autoLv === 2;
+    const nap = ms => sleep(fast() ? ms * 0.3 : ms);   // オート 高速の ときは 演出の 待ちを 短く
     const pick = a => a[Math.floor(Math.random() * a.length)];
 
     // ----- 設定・演出カスタムだけ 保存 (メダルや 状態は 保存しない) -----
@@ -20,12 +22,48 @@
     } catch (e) { /* なし */ }
     const save = () => { try { localStorage.setItem(SAVE, JSON.stringify({ setting: S().setting, custom: S().custom })); } catch (e) { /* なし */ } };
 
+    // ----- メダル・状態・データの 保存 (2026-11-22)。ゲームと ゲームの あいだ (idle) で 保存し、ひらいた ときに 戻す -----
+    //   確認用の URL (?rc=1 など) で ひらいた ときは 戻さないし 保存も しない
+    const STATE = 'koori-sbj-state-v1';
+    const DEBUG_URL = ['rc', 'bonus', 'sst', 'st', 'prep', 'rchigh', 'battle', 'seed', 'setting', 'credit'].some(k => params.get(k));
+    let hist = [], histG = 0, slump = { step: 1, pts: [0] };
+    function saveState() {
+        if (DEBUG_URL) return;
+        try { localStorage.setItem(STATE, JSON.stringify({ S: S(), hist, histG, slump })); } catch (e) { /* なし */ }
+    }
+    if (!DEBUG_URL) {
+        try {
+            const v = JSON.parse(localStorage.getItem(STATE) || 'null');
+            if (v && v.S && v.S.stats) {
+                for (const k of Object.keys(S())) delete S()[k];
+                Object.assign(S(), v.S);
+                hist = v.hist || []; histG = v.histG || 0; slump = v.slump || slump;
+            }
+        } catch (e) { /* こわれて いたら 最初から */ }
+    }
+    function clearData() { hist = []; histG = 0; slump = { step: 1, pts: [0] }; }
+    // 1 ゲームごとに 差枚を 記録 (2000 点を こえたら 1 つ おきに 間引く)
+    function recordSlump() {
+        const d = S().totalOut - S().totalIn;
+        if (S().games % slump.step === 0) slump.pts.push(d);
+        if (slump.pts.length > 2000) { slump.pts = slump.pts.filter((_, i) => i % 2 === 0); slump.step *= 2; }
+    }
+    const HIST_COL = { REG: '#567', 赤7BIG: '#c33', 青7BIG: '#36c', スーパーBIG: '#a3c', エピソードボーナス: '#c90', スーパーストックタイム: '#d4a', SPエピソード: '#c90', こおりチャンス: '#2a9', ストックタイム: '#e70', スーパーストックタイム突入: '#d4a', エンディング: '#5a5' };
+    function addHist(label) { hist.push({ at: histG, n: S().games, label, col: HIST_COL[label] || '#666' }); histG = 0; if (hist.length > 100) hist.shift(); }
+    let dataTab = 'sum';
+    function renderData() {
+        $('dataSum').hidden = dataTab !== 'sum'; $('dataHist').hidden = dataTab !== 'hist'; $('slump').hidden = dataTab !== 'graph';
+        if (dataTab === 'hist') Panel.hist(hist);
+        if (dataTab === 'graph') Panel.graph(slump, S().games);
+    }
+
     const BGM_OF = { normal: 'normal', rchigh: 'normal', prep: 'bonus', bonus: 'bonus', rcPromo: 'rc', rcJudge: 'rc', st: 'st', ending: 'ending' };
     function refresh(when) {
         LCD.render(E, G, when);
         Panel.update(E, G, lastPay);
         Panel.sub(E, G);
         Sound.bgm(BGM_OF[S().mode]);
+        renderData();
     }
 
     // ================= レバー =================
@@ -34,7 +72,7 @@
         Sound.unlock();
         const g = E.lever();
         if (g.error) { if (auto) { E.addCredit(50); return doLever(); } LCD.flash(g.error); return; }
-        G = g; order = []; wins = [null, null, null]; phase = 'freeze'; lastPay = 0;
+        G = g; order = []; wins = [null, null, null]; phase = 'freeze'; lastPay = 0; histG++;
         const h = g.hints || {};
         LCD.fxClear();
         $('lowerPanel').classList.remove('off', 'blink');
@@ -51,7 +89,7 @@
         };
         if (g.freeze) {   // ロングフリーズ: リールが 回り 始める 前に 2.6 秒の 暗転
             $('freezeTxt').textContent = g.freeze; $('freeze').classList.add('show'); Sound.se.freeze();
-            setTimeout(() => { $('freeze').classList.remove('show'); LCD.flash(g.freeze, '#ff4'); Sound.se.fanfare('rainbow'); start(); }, E.P.freezeMs);
+            setTimeout(() => { $('freeze').classList.remove('show'); LCD.flash(g.freeze, '#ff4'); Sound.se.fanfare('rainbow'); start(); }, fast() ? 900 : E.P.freezeMs);
         } else if (h.delay) setTimeout(start, 550);   // リール始動音の 遅れ (高確濃厚)
         else start();
         if (S().custom.sakibare && (g.aim != null || g.award != null) && g.modeAtLever === 'rcJudge') Sound.se.saki();
@@ -59,7 +97,7 @@
         LCD.render(E, G, 'lever');
         Scene.onLever(E, g);
         introP = null;
-        if (g.battle && g.battle.phase === 'start' && g.battle.talk) introP = Talk.intro(g.battle, auto);
+        if (g.battle && g.battle.phase === 'start' && g.battle.talk) introP = Talk.intro(g.battle, fast() ? 0.25 : auto);
         else if (g.battle && g.battle.phase === 'final') Talk.last(g.battle);
         leverEvents(g);
         showFx(g, 0);
@@ -142,18 +180,20 @@
         const g = G, modeBefore = g.modeAtLever;
         if (introP) { await introP; introP = null; }
         const wait = await reveal(g);
-        if (wait) await sleep(wait);
+        if (wait) await nap(wait);
         const res = E.settle(g, order);
         $('blackout').classList.remove('show');
         lastPay = res.pay;
         if (g.aim === 6) ReelsView.goldMiddle();
         ReelsView.mark(E.highlight(g, wins));
         if (res.pay > 0) { Sound.se.pay(res.pay); Scene.onPay(E); }
+        recordSlump();
         await afterEvents(res, modeBefore);
         refresh('idle');
         phase = 'idle';
         if (S().mode === 'rcPromo') $('rcBtns').classList.add('show');
-        if (auto) setTimeout(autoStep, 260);
+        saveState();
+        if (auto) setTimeout(autoStep, fast() ? 40 : 260);
     }
     // カードの 公開・勝敗・カットイン (最終G の カットインは 第3停止を 長押し した ときだけ・オートは 常に)
     async function reveal(g) {
@@ -161,19 +201,19 @@
             const b = g.battle;
             let showCut = false;
             if (b.phase === 'final') {
-                await sleep(350);
+                await nap(350);
                 showCut = holding || auto;
-                if (showCut) { LCD.cutin(b.cutin); Sound.se.kyuin(); await sleep(450); }
+                if (showCut) { LCD.cutin(b.cutin); Sound.se.kyuin(); await nap(450); }
             }
             $('main').innerHTML = LCD.battleHTML(E, b, true); Sound.se.card();
             if (b.surprise) LCD.flash(SBJ.OPPS[b.opp].name + '「なっ…!?」', '#ff8');
             if (b.phase === 'final') {
-                await sleep(500);
+                await nap(500);
                 if (b.win) { LCD.flash('WIN!!', '#ff4'); Sound.se.jan(); }
                 else { LCD.flash(b.kind === 'bj' && b.total > 21 ? 'BUST… LOSE' : 'LOSE…', '#99a'); Sound.se.lose(); if (b.highHint && showCut) setTimeout(() => LCD.flash('…まだ 終わらない!?', '#5f8'), 900); }
-                return 1100;
+                return fast() ? 350 : 1100;
             }
-            return 350;
+            return fast() ? 120 : 350;
         }
         if (g.modeAtLever === 'rcPromo' && g.rcCard) {
             const c = g.rcCard, rc = S().rc;
@@ -198,6 +238,12 @@
             }
         }
         const m = S().mode;
+        if (m !== modeBefore) {   // 当たり履歴
+            if (m === 'bonus') addHist(SBJ.BONUS_NAMES[S().bonus.type]);
+            else if (m === 'rcPromo' && (modeBefore === 'normal' || modeBefore === 'rchigh')) addHist('こおりチャンス');
+            else if (m === 'st' && modeBefore !== 'st') addHist(S().st.super ? 'スーパーストックタイム突入' : 'ストックタイム');
+            else if (m === 'ending') addHist('エンディング');
+        }
         if (m !== modeBefore || (modeBefore === 'bonus' && res.events.some(e => e.t === 'bonusEnd'))) {
             if (m === 'prep') { Sound.se.fanfare('bonus'); await Scene.win('bonus'); msgs.push(['ボーナス 確定!!', '#ff4']); }
             else if (m === 'bonus') { msgs.push([SBJ.BONUS_NAMES[S().bonus.type] + ' スタート!', '#ff4']); Sound.se.big(); }
@@ -207,7 +253,7 @@
             else if (m === 'rchigh' && modeBefore !== 'rchigh') msgs.push(['こおりチャンス 高確率へ', '#6cf']);
             else if (m === 'normal' && modeBefore === 'rchigh') msgs.push(['通常ステージへ…', '#aaa']);
         }
-        for (const [t, c] of msgs) { LCD.flash(t, c); await sleep(auto ? 700 : 1000); }
+        for (const [t, c] of msgs) { LCD.flash(t, c); await sleep(fast() ? 250 : auto ? 700 : 1000); }
     }
     function judgeMsgs(msgs) {
         const rc = S().rc;
@@ -226,8 +272,8 @@
         E.stand(); $('rcBtns').classList.remove('show');
         LCD.render(E, G, 'idle');
         const msgs = []; judgeMsgs(msgs);
-        for (const [t, c] of msgs) { LCD.flash(t, c); await sleep(auto ? 700 : 1000); }
-        refresh('idle'); phase = 'idle';
+        for (const [t, c] of msgs) { LCD.flash(t, c); await sleep(fast() ? 250 : auto ? 700 : 1000); }
+        refresh('idle'); phase = 'idle'; saveState();
     }
     function doPush() {
         Sound.unlock();
@@ -252,9 +298,9 @@
             const r = ord[k];
             const want = G.nav ? null : r === 0 ? [13, 14] : (r === 1 && wins[0] && wins[0][0] === 'SUI') ? SUI_OK : null;
             if (want && !want.includes(ReelsView.top0(r))) { requestAnimationFrame(next); return; }
-            doStop(r); k++; setTimeout(next, 140);
+            doStop(r); k++; setTimeout(next, fast() ? 40 : 140);
         };
-        setTimeout(next, 200);
+        setTimeout(next, fast() ? 50 : 200);
     }
 
     // ================= 入力 =================
@@ -271,8 +317,28 @@
     $('cBB').onchange = () => { S().custom.bb = $('cBB').value; save(); };
     $('cSimple').onchange = () => { S().custom.simple = $('cSimple').checked; save(); LCD.render(E, G, 'idle'); };
     $('cSaki').onchange = () => { S().custom.sakibare = $('cSaki').checked; save(); };
-    $('btnCoin').onclick = () => { E.addCredit(50); Panel.update(E, G, lastPay); };
-    $('btnAuto').onclick = () => { auto = !auto; $('btnAuto').classList.toggle('on', auto); if (auto) autoStep(); };
+    $('btnCoin').onclick = () => { E.addCredit(50); Panel.update(E, G, lastPay); if (phase === 'idle') saveState(); };
+    // オート: 押すたびに オフ → オート → オート 高速 (演出を 短く) → オフ
+    $('btnAuto').onclick = () => {
+        autoLv = (autoLv + 1) % 3; auto = autoLv > 0;
+        $('btnAuto').classList.toggle('on', auto); $('btnAuto').classList.toggle('fast', autoLv === 2);
+        $('btnAuto').textContent = autoLv === 2 ? 'オート 高速' : 'オート';
+        ReelsView.setTurbo(autoLv === 2 ? 3 : 1);
+        if (auto) autoStep();
+    };
+    // データの タブ・リセット (2 回 押すと リセット)
+    document.querySelectorAll('#dataTabs [data-t]').forEach(b => { b.onclick = () => { dataTab = b.dataset.t; document.querySelectorAll('#dataTabs [data-t]').forEach(x => x.classList.toggle('on', x === b)); renderData(); }; });
+    let resetArm = 0;
+    $('btnReset').onclick = () => {
+        if (phase !== 'idle') return;
+        if (!resetArm) { resetArm = setTimeout(() => { resetArm = 0; $('btnReset').classList.remove('armed'); $('btnReset').textContent = 'リセット'; }, 3000); $('btnReset').classList.add('armed'); $('btnReset').textContent = 'もう一度 押す'; return; }
+        clearTimeout(resetArm); resetArm = 0; $('btnReset').classList.remove('armed'); $('btnReset').textContent = 'リセット';
+        E.reset(S().setting); G = null; clearData(); saveState(); refresh('idle'); LCD.flash('データ リセット', '#fff');
+    };
+    // 音量 (演出カスタム)
+    $('vol').value = Math.round(Sound.vol * 100); $('bgmVol').value = Math.round(Sound.bgmVol / 1.1 * 100);
+    $('vol').oninput = () => { Sound.unlock(); Sound.setVol($('vol').value / 100); };
+    $('bgmVol').oninput = () => { Sound.unlock(); Sound.setBgmVol($('bgmVol').value / 100 * 1.1); };
     $('btnDebug').onclick = () => { const d = $('debug'); d.style.display = d.style.display === 'block' ? 'none' : 'block'; $('btnDebug').classList.toggle('on'); Panel.update(E, G, lastPay); };
     const muteIcon = () => { $('btnMute').textContent = Sound.muted ? '🔇' : '🔊'; $('btnBgm').classList.toggle('on', Sound.bgmOn); };
     $('btnBgm').onclick = () => { Sound.unlock(); Sound.setBgm(!Sound.bgmOn); muteIcon(); };
@@ -281,10 +347,10 @@
     $('setting').value = S().setting;
     $('setting').onchange = () => {
         if (phase !== 'idle') { $('setting').value = S().setting; return; }
-        E.reset(+$('setting').value); G = null; save(); refresh('idle'); LCD.flash('設定変更 (' + S().setting + ')', '#fff');
+        E.reset(+$('setting').value); G = null; clearData(); save(); saveState(); refresh('idle'); LCD.flash('設定変更 (' + S().setting + ')', '#fff');
     };
     addEventListener('keydown', e => {
-        if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+        if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT' || !$('guide').hidden) return;
         const k = e.key.toLowerCase();
         if (k === ' ' || k === 'enter') { e.preventDefault(); if (!e.repeat) doLever(); }
         else if (k === 'z' || k === 'arrowleft' || k === '1') { if (!e.repeat) doStop(0); }
@@ -308,7 +374,28 @@
         let b; do { b = SBJ.Battle.makeBattle(E.rng, E.P, true, false, null); } while (['bj', 'poker', 'roulette'].includes(kind) && b.kind !== kind);
         S().pending = { kind: 'bonus' }; S().omen = { pre: 0, battle: b, win: true };
     }
-    window.__game = { get E() { return E; } };
+    window.__game = { get E() { return E; }, get hist() { return hist; }, get slump() { return slump; } };
     Scene.init();
     refresh('idle');
+    if (S().mode === 'rcPromo') $('rcBtns').classList.add('show');   // ?rc=1 や 保存から 再開した とき
+
+    // ================= あそびかた (はじめての ときだけ 自動で 出す) =================
+    const GUIDE = [
+        ['ゲームの 流れ', '通常時は レバー → ストップで 回す。前兆に 入ると <b>カジノバトル</b> (BJ・ポーカー・ルーレット)。勝てば <b>ボーナス</b> か <b>こおりチャンス</b>!<br>レア役 (チェリー・スイカ など) は チャンス。'],
+        ['打ち方', 'ナビ (①②③) が 出たら その 順に 押す。ナビが ない ときは 左リールから。<br>左リールの <b>BAR</b> を 枠上〜上段に 狙う。左上段に スイカが 止まったら 中リールに スイカを 狙う。'],
+        ['こおりチャンス (前半)', '2 枚の カードから スタート。<b>HIT</b> で カードを 引き、<b>STAND</b> で 止める。ベル → カード・レア役 → ワイルドカード。<br>合計が <b>21</b> に 近いほど いい ボーナスから ジャッジ。22 以上は バースト。'],
+        ['こおりチャンス (後半)', 'ジャッジパートで REG → 赤7BIG → 青7BIG → SBIG → エピソード → SST と 段階が 上がる。<b>狙え!</b> が 出たら そこで 決まり。'],
+        ['ストックタイム', 'ST では ストックを ためて ボーナスを ループさせる。ストックの 数は 画面に 出ないけど、こおりくんの ポーズ (ピース・ウインク・投げキッス) で 示唆。'],
+        ['PUSH ボタン', 'ボーナス準備中に 押すと 色で ボーナスの 種類を 示唆。白 → 赤 → 青 → 赤＆青 → 黄 → 虹 の 順に アツい。'],
+        ['べんりな ボタン', 'オート: 押すたびに オート → オート 高速 → オフ。データの タブで 当たり履歴と スランプグラフ。演出カスタムで 音量。メダルと データは 自動で 保存。'],
+    ];
+    let gi = 0;
+    const showGuide = i => { gi = i; $('gNum').textContent = (i + 1) + ' / ' + GUIDE.length; $('guide').querySelector('.gpage').innerHTML = `<h3>${GUIDE[i][0]}</h3>${GUIDE[i][1]}`; $('gPrev').disabled = i === 0; $('gNext').textContent = i === GUIDE.length - 1 ? 'とじる' : 'つぎへ'; $('guide').hidden = false; };
+    const closeGuide = () => { $('guide').hidden = true; try { if ($('gHide').checked) localStorage.setItem('koori-sbj-guide', '1'); } catch (e) { /* なし */ } };
+    $('gPrev').onclick = () => gi > 0 && showGuide(gi - 1);
+    $('gNext').onclick = () => (gi < GUIDE.length - 1 ? showGuide(gi + 1) : closeGuide());
+    $('guide').onclick = e => { if (e.target === $('guide')) closeGuide(); };
+    $('btnGuide').onclick = () => { $('gHide').checked = true; showGuide(0); };
+    let seen = false; try { seen = localStorage.getItem('koori-sbj-guide') === '1'; } catch (e) { /* なし */ }
+    if (!seen && !DEBUG_URL) { $('gHide').checked = true; showGuide(0); }
 })();

@@ -57,7 +57,7 @@
                 case 'rcPromo': gameRcPromo(g); break;
                 case 'rcJudge': gameRcJudge(g); break;
                 case 'st': gameST(g); break;
-                case 'ending': break;
+                case 'ending': if (fx && rng.chance(SBJ.SETTING_HINT.endingRate)) g.events.push({ t: 'set', text: 'エンディング: ' + fx.settingChar('ending') }); break;
             }
             return g;
         }

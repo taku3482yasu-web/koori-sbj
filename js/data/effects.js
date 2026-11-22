@@ -173,6 +173,17 @@
             s >= 5 && [CAST.main + '＆' + CAST.rina + ' (設定5以上)', 3],
             s === 6 && [CAST.main + '＆' + CAST.rina + '＆' + CAST.mint + ' (設定6濃厚)', 2],
         ].filter(Boolean),
+        ending: s => [ // エンディング中に 出る キャラ (2026-11-22 Claude 案。数字は ここで 調整)
+            [CAST.orin + '＆' + CAST.clark + ' (デフォルト)', 50],
+            s % 2 === 1 && [CAST.howard + ' (奇数設定示唆)', 12],
+            s % 2 === 0 && [CAST.rosa + ' (偶数設定示唆)', 12],
+            [CAST.mint + ' (高設定示唆・弱)', 4 + s],
+            s >= 2 && [CAST.ilel + ' (設定2以上)', 8],
+            s >= 4 && [CAST.main + '＆' + CAST.mint + ' (設定4以上)', 4],
+            s >= 5 && [CAST.rina + ' (設定5以上)', 3],
+            s === 6 && [CAST.main + '＆' + CAST.rina + '＆' + CAST.mint + ' (設定6濃厚)', 2],
+        ].filter(Boolean),
+        endingRate: 0.12,   // エンディング中 1 ゲームごとに キャラが 出る 割合
         regCard: 0.2,
         trophy: 0.06,
         trophies: [[2, '銅 (設定2以上)'], [3, '銀 (設定3以上)'], [4, '金 (設定4以上)'], [5, 'こおり柄 (設定5以上)'], [6, '虹 (設定6濃厚)']],

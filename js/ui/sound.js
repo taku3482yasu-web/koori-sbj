@@ -5,13 +5,15 @@ const Sound = (() => {
     let AC = null, master = null, bgmBus = null, seBus = null, noiseBuf = null;
     let muted = false, bgmOn = true, bgmEl = null, bgmName = null;
     try { muted = localStorage.getItem('koori-sbj-mute') === '1'; bgmOn = localStorage.getItem('koori-sbj-bgm') !== '0'; } catch (e) { /* なし */ }
-    const BGM_VOL = 0.55, SE_VOL = 1;
+    let BGM_VOL = 0.55, VOL = 1;   // BGM の 大きさ・全体の 大きさ (演出カスタムで 変えられる・保存)
+    try { const v = JSON.parse(localStorage.getItem('koori-sbj-vol') || 'null'); if (v) { VOL = v.vol; BGM_VOL = v.bgm; } } catch (e) { /* なし */ }
+    const SE_VOL = 1;
 
     function ac() {
         if (!AC) {
             try {
                 AC = new (window.AudioContext || window.webkitAudioContext)();
-                master = AC.createGain(); master.gain.value = muted ? 0 : 1;
+                master = AC.createGain(); master.gain.value = muted ? 0 : VOL;
                 const comp = AC.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
                 master.connect(comp); comp.connect(AC.destination);
                 bgmBus = AC.createGain(); bgmBus.gain.value = bgmOn ? BGM_VOL : 0; bgmBus.connect(master);
@@ -297,7 +299,7 @@ const Sound = (() => {
         if (!name || muted || !bgmOn) return;
         if (typeof ASSETS !== 'undefined' && (ASSETS.bgm || []).includes(name)) {
             const el = new Audio(`assets/bgm/${name}.mp3`);
-            el.loop = true; el.volume = 0.5;
+            el.loop = true; el.volume = Math.min(1, 0.5 * VOL * BGM_VOL / 0.55);
             el.addEventListener('error', () => { if (bgmEl === el) { bgmEl = null; playSong(name); } });
             el.play().catch(() => { /* まだ さわって いない */ });
             bgmEl = el;
@@ -313,7 +315,7 @@ const Sound = (() => {
     function setMute(m) {
         muted = m;
         try { localStorage.setItem('koori-sbj-mute', m ? '1' : '0'); } catch (e) { /* なし */ }
-        if (master) master.gain.setTargetAtTime(m ? 0 : 1, AC.currentTime, 0.03);
+        if (master) master.gain.setTargetAtTime(m ? 0 : VOL, AC.currentTime, 0.03);
         const n = bgmName; bgmName = null; bgm(n);
     }
     function setBgm(on) {
@@ -340,5 +342,8 @@ const Sound = (() => {
             return (await off.startRendering()).getChannelData(0);
         } finally { [AC, master, bgmBus, seBus, noiseBuf, muted] = keep; echoIn = keepEcho; }
     }
-    return { se, beep, unlock, bgm, _render, setMute, setBgm, duck, get muted() { return muted; }, get bgmOn() { return bgmOn; }, _songs: SONGS };
+    const saveVol = () => { try { localStorage.setItem('koori-sbj-vol', JSON.stringify({ vol: VOL, bgm: BGM_VOL })); } catch (e) { /* なし */ } };
+    function setVol(v) { VOL = v; saveVol(); if (master && !muted) master.gain.setTargetAtTime(v, AC.currentTime, 0.03); if (bgmEl) bgmEl.volume = Math.min(1, 0.5 * VOL * BGM_VOL / 0.55); }
+    function setBgmVol(v) { BGM_VOL = v; saveVol(); if (bgmBus && bgmOn) bgmBus.gain.setTargetAtTime(v, AC.currentTime, 0.03); if (bgmEl) bgmEl.volume = Math.min(1, 0.5 * VOL * BGM_VOL / 0.55); }
+    return { se, beep, unlock, bgm, _render, setVol, setBgmVol, get vol() { return VOL; }, get bgmVol() { return BGM_VOL; }, setMute, setBgm, duck, get muted() { return muted; }, get bgmOn() { return bgmOn; }, _songs: SONGS };
 })();

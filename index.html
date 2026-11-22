@@ -49,6 +49,7 @@
         <button id="btnAuto">オート</button>
         <button id="btnDebug">内部状態</button>
         <button id="btnCustom">演出カスタム</button>
+        <button id="btnGuide">あそびかた</button>
         <button id="btnBgm" aria-label="BGM">BGM</button>
         <button id="btnMute" aria-label="音">🔊</button>
     </div>
@@ -56,9 +57,25 @@
         <label>ボーナス演出 <select id="cBB"><option value="koori">こおりBB</option><option value="shirokuma">しろくまBB</option><option value="joker">ジョーカーBB</option></select></label>
         <label><input type="checkbox" id="cSimple">こおりチャンス シンプルモード</label>
         <label><input type="checkbox" id="cSaki">先バレ (狙えの 前に 音)</label>
+        <label>音量 <input type="range" id="vol" min="0" max="100" step="5"></label>
+        <label>BGM 音量 <input type="range" id="bgmVol" min="0" max="100" step="5"></label>
     </div>
-    <div id="data"></div>
+    <div id="data">
+        <div id="dataTabs"><button data-t="sum" class="on">データ</button><button data-t="hist">当たり履歴</button><button data-t="graph">スランプグラフ</button><button id="btnReset">リセット</button></div>
+        <div id="dataSum"></div>
+        <div id="dataHist" hidden></div>
+        <canvas id="slump" width="600" height="220" hidden></canvas>
+    </div>
     <div id="debug"></div>
+    <div id="guide" hidden>
+        <div class="gbox">
+            <h2>あそびかた</h2>
+            <div class="gpage"></div>
+            <div class="gnav"><button id="gPrev">もどる</button><span id="gNum"></span><button id="gNext">つぎへ</button></div>
+            <label class="gskip"><input type="checkbox" id="gHide">つぎから 出さない</label>
+        </div>
+    </div>
+    <a id="backTaizen" href="https://taku3482yasu-web.github.io/koori-game-taizen/">← こおりくんの ゲーム大全へ もどる</a>
     <div id="help">打ち方: ナビが ない ときは 左リールから。左リールの BAR を 枠上〜上段に 狙う (最大 4 コマ すべる)。左上段に スイカが 止まったら 中リールに スイカを 狙う<br>Space / Enter: レバー　Z X C (または ← ↓ →、1 2 3): ストップ　H: HIT　S: STAND<br>第3停止を 長押しすると バトル最終G の カットインが 出る。PUSH は ボーナス準備中に 押すと 色で 種類を 示唆</div>
 </div>
 

@@ -142,7 +142,7 @@ img.chara { image-rendering: auto; display: block; filter: drop-shadow(0 2px 2px
 @keyframes alt { from { outline-color: #f4f; } to { outline-color: #4ff; } }
 #subCtrl { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 #subCtrl > * { flex: 1; font-size: 12px; padding: 8px 4px; border-radius: 8px; border: 1px solid #556; background: #223; color: #dde; cursor: pointer; min-width: 70px; }
-#subCtrl #btnMute { flex: none; min-width: 44px; }
+#subCtrl #btnMute, #subCtrl #btnBgm { flex: none; min-width: 52px; }
 #subCtrl select, #custom select { -webkit-appearance: none; appearance: none; background: #223; color: #dde; border: 1px solid #556; border-radius: 8px; text-align: center; }
 #custom select { padding: 4px 8px; }
 #subCtrl button.on { background: #3a5; color: #fff; }

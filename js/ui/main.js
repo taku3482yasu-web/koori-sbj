@@ -50,8 +50,8 @@
             if (auto) autoStops();
         };
         if (g.freeze) {   // ロングフリーズ: リールが 回り 始める 前に 2.6 秒の 暗転
-            $('freezeTxt').textContent = g.freeze; $('freeze').classList.add('show'); Sound.se.kyuin();
-            setTimeout(() => { $('freeze').classList.remove('show'); LCD.flash(g.freeze, '#ff4'); Sound.se.big(); start(); }, E.P.freezeMs);
+            $('freezeTxt').textContent = g.freeze; $('freeze').classList.add('show'); Sound.se.freeze();
+            setTimeout(() => { $('freeze').classList.remove('show'); LCD.flash(g.freeze, '#ff4'); Sound.se.fanfare('rainbow'); start(); }, E.P.freezeMs);
         } else if (h.delay) setTimeout(start, 550);   // リール始動音の 遅れ (高確濃厚)
         else start();
         if (S().custom.sakibare && (g.aim != null || g.award != null) && g.modeAtLever === 'rcJudge') Sound.se.saki();
@@ -77,14 +77,14 @@
             else if (ev.t === 'omen' || ev.t === 'hint') LCD.flash(ev.text, '#cdf');
             else if (ev.t === 'up') { LCD.flash(ev.text, '#5ff'); Sound.se.win(); }
             else if (ev.t === 'slide') LCD.flash(ev.text, '#aaa');
-            else if (ev.t === 'stock') { LCD.flash(ev.text, '#ff5'); Sound.se.win(); }
+            else if (ev.t === 'stock') { LCD.flash(ev.text, '#ff5'); Sound.se.stock(); }
             else if (ev.t === 'bbfx' || ev.t === 'set' || ev.t === 'pose') {
                 LCD.fxBar(`<b>${ev.t === 'bbfx' ? 'ボーナス演出' : ev.t === 'set' ? '設定示唆' : 'ストック示唆'}</b>${ev.text}`);
                 if (ev.t === 'bbfx') Anim.bbfx(ev.text); else if (ev.t === 'pose') Anim.pose(ev.text); else Anim.endChar(ev.text);
             }
         }
         if (g.aim != null) { LCD.cutin(g.aim >= 3 ? 'rainbow' : 'red'); Sound.se.kyuin(); }
-        if (g.award != null) { LCD.cutin('rainbow'); Sound.se.kyuin(); setTimeout(Sound.se.big, 500); }
+        if (g.award != null) { LCD.cutin('rainbow'); Sound.se.fanfare('rainbow'); }
         if (g.battle && g.battle.phase === 'start') Sound.se.card();
     }
     // 演出の 文字 (at = 0 レバー・1〜3 = 第n停止)
@@ -169,7 +169,7 @@
             if (b.surprise) LCD.flash(SBJ.OPPS[b.opp].name + '「なっ…!?」', '#ff8');
             if (b.phase === 'final') {
                 await sleep(500);
-                if (b.win) { LCD.flash('WIN!!', '#ff4'); Sound.se.big(); }
+                if (b.win) { LCD.flash('WIN!!', '#ff4'); Sound.se.jan(); }
                 else { LCD.flash(b.kind === 'bj' && b.total > 21 ? 'BUST… LOSE' : 'LOSE…', '#99a'); Sound.se.lose(); if (b.highHint && showCut) setTimeout(() => LCD.flash('…まだ 終わらない!?', '#5f8'), 900); }
                 return 1100;
             }
@@ -199,11 +199,11 @@
         }
         const m = S().mode;
         if (m !== modeBefore || (modeBefore === 'bonus' && res.events.some(e => e.t === 'bonusEnd'))) {
-            if (m === 'prep') { Sound.se.big(); await Scene.win('bonus'); msgs.push(['ボーナス 確定!!', '#ff4']); }
+            if (m === 'prep') { Sound.se.fanfare('bonus'); await Scene.win('bonus'); msgs.push(['ボーナス 確定!!', '#ff4']); }
             else if (m === 'bonus') { msgs.push([SBJ.BONUS_NAMES[S().bonus.type] + ' スタート!', '#ff4']); Sound.se.big(); }
-            else if (m === 'rcPromo') { Sound.se.big(); if (modeBefore === 'normal' || modeBefore === 'rchigh') await Scene.win('blue'); msgs.push(['こおりチャンス 突入!!', '#6cf']); }
+            else if (m === 'rcPromo') { Sound.se.fanfare('rc'); if (modeBefore === 'normal' || modeBefore === 'rchigh') await Scene.win('blue'); msgs.push(['こおりチャンス 突入!!', '#6cf']); }
             else if (m === 'rcJudge' && modeBefore !== 'rcJudge') judgeMsgs(msgs);
-            else if (m === 'st') { if (modeBefore !== 'st') await Scene.win('rainbow'); msgs.push([(S().st.super ? 'スーパー' : '') + 'ストックタイム 突入!!' + (S().st.why ? ' (' + S().st.why + ')' : ''), '#ff4']); Sound.se.big(); }
+            else if (m === 'st') { if (modeBefore !== 'st') { Sound.se.fanfare('rainbow'); await Scene.win('rainbow'); } msgs.push([(S().st.super ? 'スーパー' : '') + 'ストックタイム 突入!!' + (S().st.why ? ' (' + S().st.why + ')' : ''), '#ff4']); }
             else if (m === 'rchigh' && modeBefore !== 'rchigh') msgs.push(['こおりチャンス 高確率へ', '#6cf']);
             else if (m === 'normal' && modeBefore === 'rchigh') msgs.push(['通常ステージへ…', '#aaa']);
         }
@@ -274,8 +274,9 @@
     $('btnCoin').onclick = () => { E.addCredit(50); Panel.update(E, G, lastPay); };
     $('btnAuto').onclick = () => { auto = !auto; $('btnAuto').classList.toggle('on', auto); if (auto) autoStep(); };
     $('btnDebug').onclick = () => { const d = $('debug'); d.style.display = d.style.display === 'block' ? 'none' : 'block'; $('btnDebug').classList.toggle('on'); Panel.update(E, G, lastPay); };
-    const muteIcon = () => { $('btnMute').textContent = Sound.muted ? '🔇' : '🔊'; };
-    $('btnMute').onclick = () => { Sound.setMute(!Sound.muted); muteIcon(); };
+    const muteIcon = () => { $('btnMute').textContent = Sound.muted ? '🔇' : '🔊'; $('btnBgm').classList.toggle('on', Sound.bgmOn); };
+    $('btnBgm').onclick = () => { Sound.unlock(); Sound.setBgm(!Sound.bgmOn); muteIcon(); };
+    $('btnMute').onclick = () => { Sound.unlock(); Sound.setMute(!Sound.muted); muteIcon(); };
     muteIcon();
     $('setting').value = S().setting;
     $('setting').onchange = () => {

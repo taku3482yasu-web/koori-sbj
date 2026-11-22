@@ -6,17 +6,32 @@ const Panel = (() => {
         $('credit').textContent = S.credit;
         $('pay').textContent = lastPay;
         $('gameNo').textContent = S.sinceBig;
-        $('dataSum').textContent =
-            `総回転 ${S.games}G　BIG間 ${S.sinceBig}G\n` +
+        const left = Math.max(0, S.ceilMax - S.sinceBig);
+        $('dataSum').innerHTML =
+            `総回転 ${S.games}G　BIG間 ${S.sinceBig}G　<span class="${left <= 100 ? 'ceilNear' : ''}">天井まで あと ${left}G</span>\n` +
             `BIG ${st.big}　REG ${st.reg}　初当り ${st.first}${st.first ? ' (1/' + (S.games / st.first).toFixed(0) + ')' : ''}\n` +
             `こおりチャンス ${st.rc}　ST ${st.st}　SST ${st.sst}　JOKER ${st.joker}\n` +
-            `差枚 ${diff >= 0 ? '+' : ''}${diff}　機械割 ${S.totalIn ? (S.totalOut / S.totalIn * 100).toFixed(1) : '-'}%`;
+            `差枚 ${diff >= 0 ? '+' : ''}${diff}　機械割 ${S.totalIn ? (S.totalOut / S.totalIn * 100).toFixed(1) : '-'}%` +
+            counterHTML(E);
         if ($('debug').style.display === 'block') debug(E, G);
+    }
+    // 小役カウンター (通常時・RC 高確の 成立役を 数える)。cnt = { n: 通常時の G 数, REP: 回数, ... }
+    let cnt = null;
+    const setCounter = c => { cnt = c; };
+    function counterHTML(E) {
+        if (!cnt) return '';
+        const n = cnt.n || 0, sd = E.P.SUI_D;
+        const row = (name, ks) => { const v = ks.reduce((a, k) => a + (cnt[k] || 0), 0); return `<span>${name} ${v}<small>${v ? ' 1/' + (n / v).toFixed(1) : ''}</small></span>`; };
+        return `<div class="cnt"><span>通常時 ${n}G</span>` +
+            row('リプレイ', ['REP', 'BELREP']) + row('ベル', ['PUSHBEL', 'COMBEL']) +
+            row('チェリー', ['CHE']) + row('スイカ', ['SUI']) + row('チャンスベル', ['CBELL']) +
+            row('チャンス目', ['CHANCE']) + row('リーチ目役', ['REACH']) + row('ピンチ目', ['PINCH']) +
+            `</div><div class="cntNote">スイカの 確率は 設定差 あり (設定1 1/${sd[0]} 〜 設定6 1/${sd[5]})</div>`;
     }
     function debug(E, G) {
         const S = E.S;
         $('debug').textContent =
-            `設定 ${S.setting}　モード ${S.mode}\n` +
+            `設定 ${S.guess && !S.guess.answered ? '？' : S.setting}　モード ${S.mode}\n` +
             `成立役 ${G ? SBJ.FLAG_NAME[G.flag] : '-'}${G && G.order ? ' (正解 ' + G.order.map(x => x + 1).join('-') + ')' : ''}\n` +
             `ボーナス高確 ${S.bonusHigh ? 'ON' : 'OFF'}　チャイナ ${S.china ? 'ON' : 'OFF'}　小役連 ${S.chain}　通常G ${S.normalG}\n` +
             `天井 ${S.sinceBig}/${S.ceilMax}　REG連 ${S.regStreak}/${E.P.regCeil}　スイカ ${S.suikaCnt}/${S.suikaTarget}${S.suikaReady ? ' (到達)' : ''}\n` +
@@ -63,5 +78,5 @@ const Panel = (() => {
         pts.forEach((v, i) => (i ? c.lineTo(x(i), y(v)) : c.moveTo(x(i), y(v))));
         c.stroke();
     }
-    return { update, debug, sub, hist, graph };
+    return { update, debug, sub, hist, graph, setCounter };
 })();

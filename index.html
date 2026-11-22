@@ -6,6 +6,11 @@
 <title>こおりくんのスーパーブラックジャック</title>
 <meta name="description" content="こおりくんシリーズの スロット。前兆の BJ バトル・こおりチャンス・ストックタイムの ループ">
 <meta name="theme-color" content="#05070d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="こおりBJ">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' shape-rendering='crispEdges'%3E%3Crect width='14' height='12' fill='%231b3566'/%3E%3Crect x='1' y='1' width='12' height='10' fill='%23c6f0ff'/%3E%3Crect x='4' y='4' width='1' height='2' fill='%230e1626'/%3E%3Crect x='9' y='4' width='1' height='2' fill='%230e1626'/%3E%3Crect x='6' y='7' width='2' height='1' fill='%230e1626'/%3E%3Crect x='2' y='12' width='3' height='2' fill='%231b3566'/%3E%3Crect x='9' y='12' width='3' height='2' fill='%231b3566'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/anim.css">
@@ -44,21 +49,46 @@
         <button id="btnPush">PUSH</button>
     </div>
     <div id="subCtrl">
-        <select id="setting" aria-label="設定"><option value="1">設定1</option><option value="2">設定2</option><option value="3">設定3</option><option value="4">設定4</option><option value="5">設定5</option><option value="6">設定6</option></select>
+        <select id="setting" aria-label="設定"><option value="1">設定1</option><option value="2">設定2</option><option value="3">設定3</option><option value="4">設定4</option><option value="5">設定5</option><option value="6">設定6</option><option value="guess">設定 ？ (当てる)</option></select>
         <button id="btnCoin">メダル +50</button>
         <button id="btnAuto">オート</button>
         <button id="btnDebug">内部状態</button>
         <button id="btnCustom">演出カスタム</button>
         <button id="btnGuide">あそびかた</button>
+        <button id="btnZukan">図鑑</button>
+        <button id="btnJump">演出 確認</button>
         <button id="btnBgm" aria-label="BGM">BGM</button>
         <button id="btnMute" aria-label="音">🔊</button>
+        <button id="btnFull" aria-label="全画面">⛶</button>
     </div>
     <div id="custom">
         <label>ボーナス演出 <select id="cBB"><option value="koori">こおりBB</option><option value="shirokuma">しろくまBB</option><option value="joker">ジョーカーBB</option></select></label>
         <label><input type="checkbox" id="cSimple">こおりチャンス シンプルモード</label>
         <label><input type="checkbox" id="cSaki">先バレ (狙えの 前に 音)</label>
+        <label><input type="checkbox" id="cVib">振動 (スマホ)</label>
+        <label>キー <select id="cKeys"><option value="std">ふつう (Z X C)</option><option value="left">左手 (A S D)</option><option value="right">右手 (J K L)</option></select></label>
+        <label><input type="checkbox" id="cCalm">光を 弱める (点滅・フラッシュを おさえる)</label>
         <label>音量 <input type="range" id="vol" min="0" max="100" step="5"></label>
         <label>BGM 音量 <input type="range" id="bgmVol" min="0" max="100" step="5"></label>
+    </div>
+    <div id="jump">
+        <div id="jumpNote">すぐに 見たい 演出を えらんでね。確認用の 画面では メダル・データ・図鑑を 保存しないよ。</div>
+        <div id="jumpBtns">
+            <a href="?rc=1">こおりチャンス</a><a href="?prep=3">ボーナス準備中</a><a href="?bonus=2">青7BIG</a><a href="?bonus=0">REG</a>
+            <a href="?st=1">ストックタイム</a><a href="?sst=1">スーパーST</a><a href="?rchigh=1">RC 高確率</a>
+            <a href="?battle=bj">BJ バトル</a><a href="?battle=poker">ポーカー バトル</a><a href="?battle=roulette">ルーレット バトル</a>
+            <a href="?freeze=1">ロングフリーズ</a><a href="?ending=1">エンディング</a>
+        </div>
+        <a id="jumpBack" href="./">ふつうの ゲームに もどる</a>
+    </div>
+    <div id="guessBar" hidden><span>設定当て モード: 設定は ないしょ。</span><button id="btnGuess">設定を 予想する</button><button id="btnNextDay">つぎの 日へ</button></div>
+    <div id="guessBox" hidden>
+        <div class="gbox">
+            <h2>設定を 予想しよう</h2>
+            <div id="guessBody"></div>
+            <div id="guessPick"><button data-g="1">1</button><button data-g="2">2</button><button data-g="3">3</button><button data-g="4">4</button><button data-g="5">5</button><button data-g="6">6</button></div>
+            <div class="gnav"><button id="guessCancel">とじる</button></div>
+        </div>
     </div>
     <div id="data">
         <div id="dataTabs"><button data-t="sum" class="on">データ</button><button data-t="hist">当たり履歴</button><button data-t="graph">スランプグラフ</button><button id="btnReset">リセット</button></div>
@@ -67,6 +97,22 @@
         <canvas id="slump" width="600" height="220" hidden></canvas>
     </div>
     <div id="debug"></div>
+    <div id="zukan" hidden>
+        <div class="zbox">
+            <div class="zhead"><h2>こおり図鑑</h2><button id="zClose">とじる</button></div>
+            <div id="zTabs"></div>
+            <div id="zNote"></div>
+            <div id="zBody"></div>
+        </div>
+    </div>
+    <div id="toast"></div>
+    <div id="updates" hidden>
+        <div class="gbox">
+            <h2>アップデート情報</h2>
+            <div id="updBody"></div>
+            <div class="gnav"><span></span><button id="updClose">とじる</button></div>
+        </div>
+    </div>
     <div id="guide" hidden>
         <div class="gbox">
             <h2>あそびかた</h2>
@@ -75,8 +121,9 @@
             <label class="gskip"><input type="checkbox" id="gHide">つぎから 出さない</label>
         </div>
     </div>
+    <div id="links"><button id="btnUpd">アップデート情報</button></div>
     <a id="backTaizen" href="https://taku3482yasu-web.github.io/koori-game-taizen/">← こおりくんの ゲーム大全へ もどる</a>
-    <div id="help">打ち方: ナビが ない ときは 左リールから。左リールの BAR を 枠上〜上段に 狙う (最大 4 コマ すべる)。左上段に スイカが 止まったら 中リールに スイカを 狙う<br>Space / Enter: レバー　Z X C (または ← ↓ →、1 2 3): ストップ　H: HIT　S: STAND<br>第3停止を 長押しすると バトル最終G の カットインが 出る。PUSH は ボーナス準備中に 押すと 色で 種類を 示唆</div>
+    <div id="help">打ち方: ナビが ない ときは 左リールから。左リールの BAR を 枠上〜上段に 狙う (最大 4 コマ すべる)。左上段に スイカが 止まったら 中リールに スイカを 狙う<br><span id="helpKeys">Space / Enter: レバー　Z X C (または ← ↓ →、1 2 3): ストップ　H: HIT　S: STAND</span><br>第3停止を 長押しすると バトル最終G の カットインが 出る。PUSH は ボーナス準備中に 押すと 色で 種類を 示唆</div>
 </div>
 
 <script src="js/data/reels.js"></script>
@@ -104,6 +151,8 @@
 <script src="js/ui/talk.js"></script>
 <script src="js/ui/anim.js"></script>
 <script src="js/ui/panel.js"></script>
+<script src="js/ui/collection.js"></script>
+<script src="js/ui/updates.js"></script>
 <script src="js/ui/main.js"></script>
 </body>
 </html>

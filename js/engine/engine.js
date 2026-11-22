@@ -47,6 +47,7 @@
             S.replayNext = false;
             S.games++;
             const g = { flag: Lottery.drawFlag(S, P, rng), events: [], post: [], nav: null, order: null, modeAtLever: S.mode, wasReplay };
+            if (S.dbgFreeze && (S.mode === 'normal' || S.mode === 'rchigh') && !S.omen && !S.pending) { g.flag = 'REACH'; if (S.mode === 'normal') S.bonusHigh = true; }   // 確認用: つぎで ロングフリーズ
             g.display = g.flag;
             g.rare = isRare(g.flag);
             if (g.flag === 'PUSHBEL') { g.order = rng.pick(PERMS); if (Lottery.navOn(S, P, rng)) g.nav = g.order; }
@@ -94,7 +95,8 @@
             win.led = fx ? fx.led(g.flag) : null;
             win.trigger = g.flag;
             // ロングフリーズ: 当選した リーチ目役の 1/30 → 半々で SST (2 セット以上) か ジョーカーモード (残り 13 回)
-            if (g.flag === 'REACH' && rng.chance(P.freezeReach)) {
+            if (g.flag === 'REACH' && (S.dbgFreeze || rng.chance(P.freezeReach))) {
+                S.dbgFreeze = false;
                 const joker = rng.chance(0.5);
                 g.freeze = joker ? 'ジョーカーモード 当選!!' : 'スーパーストックタイム (200G 以上)!!';
                 S.stats.freeze++;
@@ -389,7 +391,11 @@
             promoPreview: () => S.rc ? KooriChance.rank(S.rc, P) : 0,
             yuriDiff: () => S.yuri ? diff() - S.yuriBase : 0,
             // 画面の 確認用 (?debug)
-            _dbg: { enterPrep, startBonus, enterST, enterRC, enterRcHigh },
+            _dbg: {
+                enterPrep, startBonus, enterST, enterRC, enterRcHigh,
+                enterEnding: () => { S.yuri = true; S.yuriBase = diff() - P.yuriEnding; S.mode = 'ending'; S.stats.ending++; },
+                nextFreeze: () => { S.dbgFreeze = true; },
+            },
         };
     }
     SBJ.createEngine = createEngine;

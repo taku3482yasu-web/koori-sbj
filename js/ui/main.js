@@ -73,7 +73,7 @@
     }
     function leverEvents(g) {
         for (const ev of g.events) {
-            if (ev.t === 'flash') { LCD.flash(ev.text, '#ff5'); if (ev.kyuin) Sound.se.kyuin(); }
+            if (ev.t === 'flash') { LCD.flash(ev.text, '#ff5'); if (ev.kyuin) Sound.se.kokuchi(); }
             else if (ev.t === 'omen' || ev.t === 'hint') LCD.flash(ev.text, '#cdf');
             else if (ev.t === 'up') { LCD.flash(ev.text, '#5ff'); Sound.se.win(); }
             else if (ev.t === 'slide') LCD.flash(ev.text, '#aaa');
@@ -83,7 +83,7 @@
                 if (ev.t === 'bbfx') Anim.bbfx(ev.text); else if (ev.t === 'pose') Anim.pose(ev.text); else Anim.endChar(ev.text);
             }
         }
-        if (g.aim != null) { LCD.cutin(g.aim >= 3 ? 'rainbow' : 'red'); Sound.se.kyuin(); }
+        if (g.aim != null) { LCD.cutin(g.aim >= 3 ? 'rainbow' : 'red'); Sound.se.kakutei(); }
         if (g.award != null) { LCD.cutin('rainbow'); Sound.se.fanfare('rainbow'); }
         if (g.battle && g.battle.phase === 'start') Sound.se.card();
     }

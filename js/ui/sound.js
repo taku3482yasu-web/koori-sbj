@@ -16,6 +16,7 @@ const Sound = (() => {
                 master.connect(comp); comp.connect(AC.destination);
                 bgmBus = AC.createGain(); bgmBus.gain.value = bgmOn ? BGM_VOL : 0; bgmBus.connect(master);
                 seBus = AC.createGain(); seBus.gain.value = SE_VOL; seBus.connect(master);
+                echoIn = makeEcho(AC, seBus); loadHeso(AC);
                 noiseBuf = AC.createBuffer(1, AC.sampleRate, AC.sampleRate);
                 const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
             } catch (e) { AC = null; }
@@ -182,6 +183,67 @@ const Sound = (() => {
     // ================= 効果音 =================
     function beep(f, d, type, vol, when) { const a = ac(); if (!a || muted) return; osc(seBus, type || 'square', f, a.currentTime + (when || 0), d, vol || 0.05); }
     const T = () => ac() ? AC.currentTime : 0;
+    // ---------- おにおに式の 部品 ----------
+    // やまびこ (0.13 秒・高い 音だけ くり返す)
+    let echoIn = null, hesoBuf = null;
+    const HESO = { start: 1.3, end: 3.5, gain: 4 };   // パチンコの 先バレ音の 鳴らす ところ (秒) と 大きさ (おにおにと 同じ)
+    function makeEcho(ctx, out) {
+        const echo = ctx.createDelay(1); echo.delayTime.value = 0.13;
+        const fb = ctx.createGain(); fb.gain.value = 0.38;
+        const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 600;
+        const wet = ctx.createGain(); wet.gain.value = 0.5;
+        echo.connect(fb); fb.connect(hp); hp.connect(echo); echo.connect(wet); wet.connect(out);
+        return echo;
+    }
+    function loadHeso(ctx) {
+        if (hesoBuf || typeof HESO_SOUND === 'undefined') return Promise.resolve();
+        try {
+            const bin = atob(HESO_SOUND.split(',')[1]), bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return ctx.decodeAudioData(bytes.buffer).then(b => { hesoBuf = b; }, () => {});
+        } catch (e) { return Promise.resolve(); }
+    }
+    // 音程が すべる 音 (echo = やまびこも)
+    function sweepV(from, to, type, at, d, vol, echo) {
+        const t = T() + at, o = AC.createOscillator(), g = AC.createGain();
+        o.type = type; o.frequency.setValueAtTime(from, t); o.frequency.exponentialRampToValueAtTime(to, t + d);
+        g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+        o.connect(g); g.connect(seBus); if (echo) g.connect(echoIn); o.start(t); o.stop(t + d + 0.03);
+    }
+    // ドスッ (低い ところだけ 残した ノイズ)
+    function thump(at, d, vol, cutoff) {
+        const t = T() + at, len = Math.floor(AC.sampleRate * d), buf = AC.createBuffer(1, len, AC.sampleRate), x = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) x[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+        const src = AC.createBufferSource(), lp = AC.createBiquadFilter(), g = AC.createGain();
+        src.buffer = buf; lp.type = 'lowpass'; lp.frequency.value = cutoff; g.gain.value = vol;
+        src.connect(lp); lp.connect(g); g.connect(seBus); src.start(t);
+    }
+    // 一発告知の 重低音 (うなり なし・衝撃と 低い 落ちる 音)
+    function boom(at) {
+        const t = T() + at;
+        thump(at, 0.6, 1, 160);
+        osc(seBus, 'sine', 90, t, 0.9, 0.5, { to: 32, glide: 0.7, a: 0.003 });
+        osc(seBus, 'square', 110, t, 0.5, 0.06, { to: 40, glide: 0.4, a: 0.003, lp: 400 });
+    }
+    // 長い キュイン (35Hz の ドロップ + 4600 → 6200Hz の 2 段の キュイン・約 3.8 秒)
+    function longKyuin() {
+        const t = T();
+        osc(seBus, 'sine', 70, t, 1.6, 0.5, { to: 35, glide: 0.5, a: 0.004 });
+        thump(0, 0.5, 0.9, 140);
+        const hold = (f, f2, at, d, vol, type, lp, echo) => {
+            const o = AC.createOscillator(), g = AC.createGain(), tt = t + at; o.type = type;
+            o.frequency.setValueAtTime(f, tt); o.frequency.exponentialRampToValueAtTime(f2, tt + 0.28);
+            g.gain.setValueAtTime(0.0001, tt); g.gain.exponentialRampToValueAtTime(vol, tt + 0.01); g.gain.setValueAtTime(vol, tt + d * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, tt + d);
+            let n = o; if (lp) { const f3 = AC.createBiquadFilter(); f3.type = 'lowpass'; f3.frequency.value = lp; o.connect(f3); n = f3; }
+            n.connect(g); g.connect(seBus); if (echo) g.connect(echoIn); o.start(tt); o.stop(tt + d + 0.05);
+        };
+        hold(2300, 4600, 0.05, 1.5, 0.05, 'square', 9000, true);
+        hold(4600, 6200, 1.5, 2.3, 0.045, 'square', 11000, true);
+        hold(1150, 1550, 1.5, 2.3, 0.05, 'triangle', 0, false);
+    }
+    // 突入の ファンファーレを 2 回 (はじめと 0.5 秒 あと)
+    function bonusIn(at = 0) { [0, 0.5].forEach(d => [440, 540, 640, 740, 840].forEach((f, i) => osc(seBus, 'triangle', f, T() + at + d + i * 0.1, 0.2, 0.1))); }
+
     const se = {
         lever: () => beep(180, 0.08, 'square', 0.06),
         stop: () => beep(90, 0.07, 'triangle', 0.12),
@@ -193,47 +255,37 @@ const Sound = (() => {
         tick: () => beep(1200, 0.02, 'square', 0.02),
         saki: () => beep(1800, 0.25, 'sine', 0.08),      // 先バレ音
 
-        // ---------- 当たりの 告知音 ----------
-        // キュイン: 2 本の のこぎり波が 一気に 駆け上がって、きらきらの 余韻
-        kyuin: () => {
-            if (!ac() || muted) return; const t = T(); duck(1400);
-            osc(seBus, 'sawtooth', 320, t, 0.55, 0.14, { to: 3400, glide: 0.42, lp: 6000 });
-            osc(seBus, 'sawtooth', 330, t, 0.55, 0.10, { to: 3500, glide: 0.42, detune: 15, lp: 6000 });
-            osc(seBus, 'square', 160, t, 0.5, 0.06, { to: 1700, glide: 0.42, lp: 3000 });
-            for (let i = 0; i < 6; i++) osc(seBus, 'sine', 2600 + i * 420, t + 0.42 + i * 0.05, 0.4, 0.07);
-            noise(seBus, t + 0.4, 0.5, 0.1, 6000);
+        // ---------- 当たりの 告知音 (2026-11-22 ユーザー指定: 初代スロット「おにおにの野望」の 当たり音の 感じ) ----------
+        // おにおにの js/audio.js と 同じ 作り: 高い 音に やまびこ・腹に 響く ドスッ・一発告知は パチンコの 先バレ音 (ユーザーの 録音)
+        // 先バレ: キュイン キュイン (バトルの カットイン・会話)
+        kyuin: () => { if (!ac() || muted) return; duck(900); sweepV(900, 1900, 'square', 0, 0.16, 0.06); sweepV(900, 1900, 'square', 0.17, 0.16, 0.06); },
+        // 一発告知 (レバーで 当選を 知らせる): ドスッ + 先バレ音の 録音 (やまびこ付き) + 低い 落ちる 音
+        kokuchi: () => {
+            if (!ac() || muted) return; duck(3600);
+            thump(0, 0.35, 0.8, 220);
+            if (hesoBuf) { const src = AC.createBufferSource(), g = AC.createGain(); src.buffer = hesoBuf; g.gain.value = HESO.gain; src.connect(g); g.connect(seBus); g.connect(echoIn); src.start(T(), HESO.start, HESO.end - HESO.start); }
+            else [523.25, 659.25, 783.99, 1046.5, 1318.5, 1568, 2093].forEach((f, i) => osc(seBus, 'triangle', f, T() + i * 0.11, 0.5, 0.09));
+            boom(0);
         },
-        // ボーナス確定: キュイン → 金管の ファンファーレ
+        // 当たり確定: キュイン キュイン キュイン (狙えカットイン)
+        kakutei: () => { if (!ac() || muted) return; duck(1600); [0, 0.18, 0.36].forEach(d => sweepV(1200, 2600, 'triangle', d, 0.2, 0.08, true)); },
+        // 突入の 告知: kind = 'bonus' (ボーナス確定) / 'rc' (こおりチャンス) / 'rainbow' (ストックタイム・プレミア)
         fanfare: kind => {
-            if (!ac() || muted) return; const t = T();
-            if (kind === 'rc') {          // こおりチャンス: つめたい ベルの 駆け上がり + 和音
-                duck(2200);
-                [74, 78, 81, 86, 90, 93, 98].forEach((m, i) => INST.bell(seBus, m, t + i * 0.06, 0.5, 1.4));
-                [62, 66, 69, 74].forEach(m => INST.brass(seBus, m, t + 0.5, 1.3, 1.6));
-                noise(seBus, t + 0.5, 1.0, 0.05, 8000);
-            } else if (kind === 'rainbow') {   // ストックタイム・プレミア: 長い グリッサンド + 大きな 和音 + きらきら
-                duck(3200);
-                for (let i = 0; i < 24; i++) INST.arp(seBus, 60 + i * 1.5 | 0, t + i * 0.025, 0.1, 1.6);
-                [52, 59, 64, 68, 71, 76].forEach(m => INST.brass(seBus, m, t + 0.62, 1.9, 1.6));
-                INST.kick(seBus, 0, t + 0.62, 0.3, 1.5); noise(seBus, t + 0.62, 1.6, 0.08, 5000);
-                for (let i = 0; i < 10; i++) INST.bell(seBus, 88 + (i * 5) % 12, t + 0.8 + i * 0.12, 0.4, 1);
-            } else {                       // ボーナス: タタタ・ターン!
-                duck(2400);
-                [[67, 0], [67, 0.12], [67, 0.24], [72, 0.38]].forEach(([m, d], i) => [0, 4, 7].forEach(x => INST.brass(seBus, m + x, t + d, i === 3 ? 1.3 : 0.1, 1.5)));
-                INST.kick(seBus, 0, t + 0.38, 0.3, 1.4); noise(seBus, t + 0.38, 1.2, 0.07, 4000);
-                [84, 88, 91, 96].forEach((m, i) => INST.bell(seBus, m, t + 0.5 + i * 0.07, 0.4, 1));
-            }
+            if (!ac() || muted) return;
+            if (kind === 'rainbow') { duck(4000); longKyuin(); bonusIn(1.5); }
+            else if (kind === 'rc') { duck(2400); se.kakutei(); [523.25, 659.25, 783.99, 1046.5, 1318.5, 1568, 2093].forEach((f, i) => osc(seBus, 'triangle', f, T() + 0.6 + i * 0.11, 0.5, 0.09)); }
+            else { duck(2600); boom(0); bonusIn(); }
         },
-        // バトル勝利: ジャン!
-        jan: () => {
-            if (!ac() || muted) return; const t = T(); duck(1500);
-            [60, 64, 67, 72, 76].forEach(m => INST.brass(seBus, m, t, 0.9, 1.5));
-            INST.kick(seBus, 0, t, 0.3, 1.5); noise(seBus, t, 0.8, 0.07, 3500);
+        // バトル勝利: ドスッ + 勝利の 3 音
+        jan: () => { if (!ac() || muted) return; duck(1500); boom(0); [523.25, 659.25, 783.99].forEach((f, i) => osc(seBus, 'sine', f, T() + i * 0.1, 0.3, 0.1)); },
+        // ストック獲得: 1 つ 上がる ブラス
+        stock: () => { if (!ac() || muted) return; const t = T(); [1, 1.25, 1.5].forEach((m, i) => osc(seBus, 'sawtooth', 523.25 * m, t + i * 0.01, 0.6, 0.035, { a: 0.03, sus: true, lp: 2400 })); thump(0, 0.2, 0.4, 300); },
+        // ロングフリーズ: プチュン (消灯) → 重低音の 衝撃 3 連
+        freeze: () => {
+            if (!ac() || muted) return; duck(3200); const t = T();
+            osc(seBus, 'square', 1800, t, 0.09, 0.08, { to: 120, glide: 0.08 }); thump(0, 0.08, 0.3, 900);
+            [0.5, 1.1, 1.7].forEach((at, i) => { thump(at, 0.5, 1, 150); osc(seBus, 'sine', 90 - i * 10, t + at, 0.8, 0.5, { to: 34, glide: 0.6, a: 0.003 }); });
         },
-        // ストック獲得: コインの チャリン
-        stock: () => { if (!ac() || muted) return; const t = T(); [88, 95, 100].forEach((m, i) => INST.bell(seBus, m, t + i * 0.07, 0.3, 1.4)); },
-        // ロングフリーズ: 低い うなり → 静寂
-        freeze: () => { if (!ac() || muted) return; const t = T(); duck(3200); osc(seBus, 'sawtooth', 110, t, 1.8, 0.2, { to: 30, glide: 1.7, lp: 600 }); noise(seBus, t, 1.5, 0.14, 0, 400); },
     };
 
     // ================= BGM の 切りかえ =================
@@ -277,6 +329,7 @@ const Sound = (() => {
         AC = off; master = off.createGain(); master.connect(off.destination);
         bgmBus = off.createGain(); bgmBus.gain.value = BGM_VOL; bgmBus.connect(master);
         seBus = off.createGain(); seBus.connect(master); muted = false;
+        await loadHeso(off); const keepEcho = echoIn; echoIn = makeEcho(off, seBus);
         noiseBuf = off.createBuffer(1, 44100, 44100); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
         const [kind, name, arg] = what.split(':');
         try {
@@ -285,7 +338,7 @@ const Sound = (() => {
                 for (let st = 0, t = 0.05; t < sec; st++, t += sd) for (const [s0, inst, m, len, v] of song.ev) if (s0 === st % song.steps) INST[inst](bgmBus, m, t + (song.swing && s0 % 4 === 2 ? song.swing * sd : 0), len * sd * 0.95, v);
             } else se[name](arg);
             return (await off.startRendering()).getChannelData(0);
-        } finally { [AC, master, bgmBus, seBus, noiseBuf, muted] = keep; }
+        } finally { [AC, master, bgmBus, seBus, noiseBuf, muted] = keep; echoIn = keepEcho; }
     }
     return { se, beep, unlock, bgm, _render, setMute, setBgm, duck, get muted() { return muted; }, get bgmOn() { return bgmOn; }, _songs: SONGS };
 })();

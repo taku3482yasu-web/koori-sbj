@@ -73,12 +73,20 @@
         if (dataTab === 'graph') Panel.graph(slump, S().games);
     }
 
-    const BGM_OF = { normal: 'normal', rchigh: 'normal', prep: 'bonus', bonus: 'bonus', rcPromo: 'rc', rcJudge: 'rc', st: 'st', ending: 'ending' };
+    const BGM_OF = { normal: 'normal', rchigh: 'normal', prep: 'prep', bonus: 'bonus', rcPromo: 'rc', rcJudge: 'rc', st: 'st', ending: 'ending' };
+    // ボーナス・ST の 曲は 種類ごと (2026-11-23)。mp3 を 置く ときは assets/bgm/<名前>.mp3 (bonus_red など)
+    const BONUS_BGM = ['bonus_reg', 'bonus_red', 'bonus_blue', 'bonus_super', 'bonus_ep', 'st_super', 'bonus_ep'];
+    function bgmName() {
+        const m = S().mode;
+        if (m === 'bonus' && S().bonus) return BONUS_BGM[S().bonus.type] || 'bonus';
+        if (m === 'st' && S().st && S().st.super) return 'st_super';
+        return BGM_OF[m];
+    }
     function refresh(when) {
         LCD.render(E, G, when);
         Panel.update(E, G, lastPay);
         Panel.sub(E, G);
-        Sound.bgm(BGM_OF[S().mode]);
+        Sound.bgm(bgmName());
         renderData();
     }
 

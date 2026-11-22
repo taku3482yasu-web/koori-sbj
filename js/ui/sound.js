@@ -145,7 +145,39 @@ const Sound = (() => {
         drums(ev, 128, { kick: '1.......1.......', brush: '....1.......1...', hat: '..1...1...1...1.' });
         return { bpm: 96, swing: 0.2, steps: 128, ev };
     }
-    const SONGS = { normal: songNormal, bonus: songBonus, rc: songRC, st: songST, ending: songEnding };
+    // ---------- ボーナスごとの 曲 (2026-11-23 ユーザー指定: 今ある 曲から 作る) ----------
+    // もとの 曲を 移調・テンポ・楽器の 入れかえで 編曲する。o = { tr: 半音, bpm, swap: {楽器: 楽器}, drop: [楽器], up: [オクターブ 重ねる 楽器], arp: true }
+    function variant(base, o) {
+        return () => {
+            const s = base(), ev = [];
+            for (const e of s.ev) {
+                if ((o.drop || []).includes(e[1])) continue;
+                const drum = ['kick', 'snare', 'hat', 'ohat', 'brush', 'ride'].includes(e[1]);
+                const inst = (o.swap || {})[e[1]] || e[1], m = drum ? e[2] : e[2] + (o.tr || 0);
+                ev.push([e[0], inst, m, e[3], e[4]]);
+                if ((o.up || []).includes(e[1])) ev.push([e[0], inst, m + 12, e[3], e[4] * 0.6]);
+            }
+            if (o.arp) {   // 16 分の アルペジオを 足す (ベースの 音から)
+                const bass = s.ev.filter(e => e[1] === 'bass' || e[1] === 'pbass');
+                for (let st = 0; st < s.steps; st++) {
+                    const b = bass.filter(e => e[0] <= st).pop(); if (!b) continue;
+                    ev.push([st, 'arp', b[2] + (o.tr || 0) + 24 + [0, 7, 12, 16][st % 4], 1, 0.6]);
+                }
+            }
+            if (o.drums) drums(ev, s.steps, o.drums);
+            return { bpm: o.bpm || s.bpm, swing: o.swing != null ? o.swing : s.swing, steps: s.steps, ev };
+        };
+    }
+    const SONGS = {
+        normal: songNormal, bonus: songBonus, rc: songRC, st: songST, ending: songEnding,
+        prep: variant(songBonus, { drop: ['lead'], bpm: 144 }),                                                  // 準備中: メロディ なし (種類は ないしょ)
+        bonus_reg: variant(songBonus, { tr: -2, bpm: 136, swap: { lead: 'piano', brass: 'pad' }, drop: ['ohat'] }), // REG: ひかえめ
+        bonus_red: songBonus,                                                                                    // 赤7BIG: もとの ボーナス曲
+        bonus_blue: variant(songBonus, { tr: 2, bpm: 152, swap: { lead: 'vib', brass: 'piano' }, up: ['lead'] }),   // 青7BIG: すずしい ベルの 音
+        bonus_super: variant(songBonus, { tr: 5, bpm: 168, up: ['lead', 'brass'], arp: true }),                  // スーパーBIG: 速く・厚く
+        bonus_ep: variant(songEnding, { tr: 2, bpm: 116, swing: 0, swap: { bell: 'lead', pad: 'brass' }, up: ['bell'], drums: { kick: 'x...1...x...1...', snare: '....1.......1...', hat: '1.1.1.1.1.1.1.1.' } }), // エピソード: エンディング曲を 盛り上げて
+        st_super: variant(songST, { tr: 1, bpm: 184, up: ['lead'], arp: true }),                                  // スーパーストックタイム
+    };
     const cache = {};
 
     // ---------- 曲の 再生 (先読み スケジューラ) ----------
